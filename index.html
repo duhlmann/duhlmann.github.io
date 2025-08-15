@@ -1,32 +1,106 @@
-Build and deployment
-Source
-Branch
-Your GitHub Pages site is currently being built from the main branch. Learn more about configuring the publishing source for your site.
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dominica Uhlmann — Data & AI Portfolio</title>
+  <style>
+    /* Simple, clean, single-file styles */
+    :root { --max: 900px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; line-height:1.6; color:#111; }
+    header { padding: 48px 16px; background:#f5f7fb; border-bottom:1px solid #e7e9ef; }
+    header .wrap, main .wrap, footer .wrap { max-width: var(--max); margin:0 auto; }
+    h1 { margin:0 0 8px; font-size: clamp(28px, 4vw, 40px); }
+    h2 { margin:32px 0 12px; font-size: clamp(20px, 3vw, 28px); }
+    p.lead { margin:0; font-size:1.1rem; color:#333; }
+    nav { margin-top:12px; }
+    nav a { margin-right:16px; text-decoration:none; color:#0a58ca; }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .card { border:1px solid #e7e9ef; border-radius:12px; padding:16px; background:#fff; }
+    .card h3 { margin:0 0 6px; font-size:1.1rem; }
+    .tag { display:inline-block; font-size:.8rem; padding:2px 8px; border-radius:999px; background:#eef2ff; border:1px solid #dbe1ff; margin-right:6px; }
+    a.button { display:inline-block; margin-top:8px; padding:8px 12px; border:1px solid #0a58ca; border-radius:8px; text-decoration:none; }
+    footer { border-top:1px solid #e7e9ef; background:#fafbff; padding:24px 16px; margin-top:32px; color:#444; }
+    ul { padding-left: 18px; }
+    code { background:#f1f3f7; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Dominica Uhlmann</h1>
+      <p class="lead">Beginner-friendly Data & AI projects — clear write-ups, small demos, and results anyone can understand.</p>
+      <nav>
+        <a href="#projects">Projects</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-Learn how to add a Jekyll theme to your site.
+  <main>
+    <div class="wrap">
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <div class="card">
+          <h3>Logistic Regression on X-ray Images (Baseline)</h3>
+          <div>
+            <span class="tag">Python</span>
+            <span class="tag">scikit-learn</span>
+            <span class="tag">Images</span>
+          </div>
+          <p>Built a simple baseline model (logistic regression) to classify X-ray images into two groups. Focus is on clear steps, a confusion matrix, and easy-to-follow code.</p>
+          <a class="button" href="#" target="_blank" rel="noopener">View notebook</a>
+          <a class="button" href="#" target="_blank" rel="noopener">Project README</a>
+        </div>
+
+        <div class="card">
+          <h3>Canadian Travel to the U.S. — Line Chart</h3>
+          <div>
+            <span class="tag">Matplotlib</span>
+            <span class="tag">Data Viz</span>
+          </div>
+          <p>Small visualization project: a simple line chart showing changes by month. Includes the exact code and a PNG export for the portfolio.</p>
+          <a class="button" href="#" target="_blank" rel="noopener">Code & PNG</a>
+        </div>
+
+        <div class="card">
+          <h3>Hydro Usage — Daily Energy (Regression)</h3>
+          <div>
+            <span class="tag">Pandas</span>
+            <span class="tag">EDA</span>
+          </div>
+          <p>Exploratory analysis and a starter regression on daily energy usage with time features and simple lag features.</p>
+          <a class="button" href="#" target="_blank" rel="noopener">Repo / Notebook</a>
+        </div>
+      </section>
+
+      <section id="about">
+        <h2>About</h2>
+        <p>Hi! I’m Dominica. I’m a former educator (15 years) who completed the UBC “Key Skills in Data Science” certificate. I build beginner-friendly projects and explain them in plain language.</p>
+        <ul>
+          <li><strong>Focus:</strong> simple, transparent models first; then improvements.</li>
+          <li><strong>Tools:</strong> Python, pandas, scikit-learn, matplotlib, Jupyter/Colab.</li>
+          <li><strong>Goal:</strong> clear explanations so non-technical people can follow along.</li>
+        </ul>
+      </section>
+
+      <section id="contact">
+        <h2>Contact</h2>
+        <p>Email: <a href="mailto:you@example.com">you@example.com</a> • GitHub: <a href="https://github.com/YOUR-USERNAME">YOUR-USERNAME</a></p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>© <span id="y"></span> Dominica Uhlmann • Hosted on GitHub Pages</p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
 
 
-Your site was last deployed to the github-pages environment by the pages build and deployment workflow.
-Learn more about deploying to GitHub Pages using custom workflows
-
-Custom domain
-Custom domain
-Custom domains allow you to serve your site from a domain other than duhlmann.github.io. Learn more about configuring custom domains.
-
- 
-
-Enforce HTTPS
-— Required for your site because you are using the default domain (duhlmann.github.io)
-HTTPS provides a layer of encryption that prevents others from snooping on or tampering with traffic to your site.
-When HTTPS is enforced, your site will only be served over HTTPS. Learn more about securing your GitHub Pages site with HTTPS.
-
-Footer
-© 2025 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact
-Manage cookies
