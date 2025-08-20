@@ -1,41 +1,114 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>My Portfolio</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>
-      body { font-family: system-ui, Arial, sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; }
-      .card { border: 1px solid #eee; border-radius: 12px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-      a.button { display: inline-block; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; }
-    </style>
-  </head>
-  <body>
-    <h1>Dominica’s Projects</h1>
-    <p>Welcome! I’m sharing a few Jupyter notebooks and data projects.</p>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dominica Uhlmann — Data & ML Portfolio</title>
+  <meta name="description" content="Projects in data science, machine learning, and visualization." />
+  <style>
+    :root{
+      --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb; --accent:#6ee7b7; --accent2:#93c5fd;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b0f19 0%, #0b1324 100%);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}
+    header .name{font-weight:700;font-size:1.125rem}
+    .pill{display:inline-block;border:1px solid #243045;border-radius:999px;padding:6px 10px;font-size:.85rem;color:var(--muted)}
+    .hero{padding:48px 0;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
+    .hero h1{font-size:2.2rem;line-height:1.15;margin:0 0 10px}
+    .hero p{color:var(--muted);margin:.25rem 0 1rem}
+    .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b0f19;font-weight:700;border:none;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(147,197,253,.15);}
+    .btn.secondary{background:#1c2537;color:var(--text);border:1px solid #243045}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,#0f172a 0%, #0b1224 100%);border:1px solid #1f2a40;border-radius:18px;padding:18px;transition:.2s;}
+    .card:hover{transform:translateY(-2px);border-color:#2b3a56}
+    .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid #26334b;border-radius:999px;padding:4px 8px;margin-right:6px}
+    .card h3{margin:10px 0 6px;font-size:1.05rem}
+    .card p{margin:0 0 12px;color:var(--muted);min-height:40px}
+    .links{display:flex;gap:10px;flex-wrap:wrap}
+    footer{margin:40px 0 10px;color:var(--muted);font-size:.9rem}
+    code.comment{display:block;color:#9aa4b2;background:#0c1220;border:1px dashed #243045;padding:10px;border-radius:12px;margin:14px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="name">Dominica Uhlmann</div>
+      <nav><a class="pill" href="#projects">Projects</a> <a class="pill" href="#contact">Contact</a></nav>
+    </header>
 
-    
-    <div class="card">
-      <h3>My First Notebook</h3>
-      <p>Short description of what someone will see.</p>
-      <a class="button" href="my_notebook.html" target="_blank" rel="noopener">View project</a>
+    <section class="hero">
+      <div>
+        <h1>Data & Machine Learning Portfolio</h1>
+        <p>I build beginner-friendly demos and real projects: CNNs for medical images, logistic regression baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
+        <div class="cta">
+          <a class="btn" href="#projects">See Projects</a>
+          <a class="btn secondary" href="https://github.com/duhlmann" target="_blank" rel="noopener">GitHub Profile</a>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <span class="tag">Quick note</span>
+          <h3>How to add a new project</h3>
+          <code class="comment"><strong>1)</strong> Duplicate a card below.
+<strong>2)</strong> Change the title, description, and links.
+<strong>3)</strong> Commit to <em>main</em>. Your site auto-updates.</code>
+          <div class="links">
+            <a class="pill" href="#projects">Jump to cards ↓</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 id="projects" style="margin:12px 0 12px">Projects</h2>
+    <div class="grid">
+      <!-- Project 1: Pneumonia CNN -->
+      <article class="card">
+        <div class="tags"><span class="tag">Keras</span><span class="tag">CNN</span><span class="tag">Medical Imaging</span></div>
+        <h3>Pneumonia CNN Model</h3>
+        <p>Convolutional neural network classifying chest X-rays as pneumonia vs. normal. Trained in Colab; model saved as <code>.keras</code>.</p>
+        <div class="links">
+          <a class="pill" href="https://github.com/duhlmann/Examplepneumonia-cnn" target="_blank" rel="noopener">View repository</a>
+        </div>
+      </article>
+
+      <!-- Project 2: Logistic Regression Baseline -->
+      <article class="card">
+        <div class="tags"><span class="tag">scikit-learn</span><span class="tag">Baseline</span><span class="tag">Metrics</span></div>
+        <h3>Logistic Regression Baseline (Images)</h3>
+        <p>Simple baseline on flattened images with accuracy, precision/recall, and confusion matrix for comparison to CNN.</p>
+        <div class="links">
+          <a class="pill" href="#" target="_blank" rel="noopener">View repository (add link)</a>
+        </div>
+      </article>
+
+      <!-- Project 3: Data Cleaning as a Service -->
+      <article class="card">
+        <div class="tags"><span class="tag">pandas</span><span class="tag">Streamlit</span><span class="tag">Automation</span></div>
+        <h3>Data Cleaning App</h3>
+        <p>Streamlit app that cleans messy CSV/Excel files (missing values, duplicates) and returns a tidy download.</p>
+        <div class="links">
+          <a class="pill" href="#" target="_blank" rel="noopener">View repository (add link)</a>
+        </div>
+      </article>
     </div>
- <section id="projects" style="max-width:900px;margin:40px auto;padding:20px;font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;line-height:1.5;">
- 
-  <div style="border:1px solid #e5e7eb;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-    <h3 style="margin:0 0 8px;">Pneumonia CNN Model</h3>
-    <p style="margin:0 0 12px;">
-      Trained a convolutional neural network (Keras) to classify chest X-rays as pneumonia vs normal.
-      Model is saved in the modern <code>.keras</code> format.
-    </p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <a href="https://github.com/duhlmann/Examplepneumonia-cnn" target="_blank" rel="noopener" style="text-decoration:none;padding:10px 14px;border:1px solid #111;border-radius:10px;">View repository</a>
-      <a href="https://raw.githubusercontent.com/duhlmann/Examplepneumonia-cnn/main/cnn_pneumonia_augmented.keras" target="_blank" rel="noopener" style="text-decoration:none;padding:10px 14px;border:1px solid #111;border-radius:10px;">Download model (.keras)</a>
-    </div>
+
+    <section id="contact" style="margin-top:36px">
+      <h2>Contact</h2>
+      <p class="muted">Best way to reach me: open an issue on a repo or message me via my GitHub profile.</p>
+    </section>
+
+    <footer>
+      © <span id="year"></span> Dominica Uhlmann • Built with GitHub Pages
+    </footer>
   </div>
-</section>
-  
-  
-  </body>
 
-</html>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
