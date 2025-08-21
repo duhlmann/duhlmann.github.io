@@ -45,7 +45,7 @@
     <section class="hero">
       <div>
         <h1>Data & Machine Learning Portfolio</h1>
-        <p>I build beginner-friendly demos and real projects: CNNs for medical images, logistic regression baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
+        <p>I build beginner-friendly demos and real projects: CNNs for medical images, linear/logistic baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
         <div class="cta">
           <a class="btn" href="#projects">See Projects</a>
           <a class="btn secondary" href="https://github.com/duhlmann" target="_blank" rel="noopener">GitHub Profile</a>
@@ -67,6 +67,7 @@
 
     <h2 id="projects" style="margin:12px 0 12px">Projects</h2>
     <div class="grid">
+
       <!-- Project 1: Pneumonia CNN -->
       <article class="card">
         <div class="tags"><span class="tag">Keras</span><span class="tag">CNN</span><span class="tag">Medical Imaging</span></div>
@@ -77,13 +78,13 @@
         </div>
       </article>
 
-      <!-- Project 2: Linear Regression Baseline -->
+      <!-- Project 2: Linear Regression Baseline (Images) -->
       <article class="card">
         <div class="tags"><span class="tag">scikit-learn</span><span class="tag">Baseline</span><span class="tag">Metrics</span></div>
         <h3>Linear Regression Baseline (Images)</h3>
-        <p>Simple baseline on flattened images with accuracy, precision/recall, and confusion matrix for comparison to CNN.</p>
+        <p>Simple baseline on flattened images for comparison to CNNs. (Rename or update later if you switch to logistic.)</p>
         <div class="links">
-          <a class="pill" href="https://github.com/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb" target="_blank" rel="noopener">View notebook</a>
+          <a class="pill" href="#" target="_blank" rel="noopener">View repository (add link)</a>
         </div>
       </article>
 
@@ -96,12 +97,18 @@
           <a class="pill" href="#" target="_blank" rel="noopener">View repository (add link)</a>
         </div>
       </article>
+
+      <!-- Project 4: Mortgage Linear Regression -->
+      <article class="card">
+        <div class="tags"><span class="tag">Linear Regression</span><span class="tag">scikit-learn</span><span class="tag">Starter</span></div>
+        <h3>Mortgage Price Prediction (Linear Regression)</h3>
+        <p>Simple linear regression starter notebook for predicting a target (e.g., mortgage price) with clear, beginner-friendly code.</p>
+        <div class="links">
+          <a class="pill" href="https://github.com/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb" target="_blank" rel="noopener">View notebook</a>
+        </div>
+      </article>
+
     </div>
-    <div class="card">
-  <h3>Mortgage Rates Regression</h3>
-  <p>Linear regression project predicting Canadian 5-year conventional mortgage rates (1951–2024). Shows how adding lag features improves performance.</p>
-  <a class="button" href="https://github.com/duhlmann/duhlmann.github.io/blob/main/Logistic_Regression_starter.ipynb" target="_blank" rel="noopener">View notebook</a>
-</div>
 
     <section id="contact" style="margin-top:36px">
       <h2>Contact</h2>
@@ -117,3 +124,4 @@
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
+</html>
