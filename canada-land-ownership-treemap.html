@@ -45,11 +45,12 @@
     <div id="chart"></div>
 
     <div class="legend">
-      <span><span class="sw" style="background:#4468c8"></span>Federal (other)</span>
-      <span><span class="sw" style="background:#62c7c3"></span>National Parks</span>
-      <span><span class="sw" style="background:#4aa457"></span>Prov/Terr (other)</span>
-      <span><span class="sw" style="background:#86d87f"></span>Prov/Terr Conserved</span>
-      <span><span class="sw" style="background:#f28e2b"></span>Private</span>
+      <span><span class="sw" style="background:#4C78A8"></span>Federal (other)</span>
+      <span><span class="sw" style="background:#72B7B2"></span>Federal Conserved (other)</span>
+      <span><span class="sw" style="background:#1F9E89"></span>National Parks</span>
+      <span><span class="sw" style="background:#E45756"></span>Prov/Terr (other)</span>
+      <span><span class="sw" style="background:#F58518"></span>Prov/Terr Conserved</span>
+      <span><span class="sw" style="background:#9D77CF"></span>Private</span>
     </div>
 
     <p class="note">
@@ -61,7 +62,6 @@
       Citations:
       • Canadian Encyclopedia (“Crown land”) — federal/provincial vs private split. • Statistics Canada — official land area.
       • ECCC indicator — conserved areas (13.8%) and jurisdiction split. • Canadian Encyclopedia — national parks coverage (~3%+).
-      (Full links in your repo README or below the chart if you prefer.)
     </p>
   </div>
 
@@ -72,41 +72,37 @@
     const pct = {
       crown: 0.89,
       private: 0.11,
-      federalTotal: 0.41,      // of total land
-      provTotal: 0.48,         // of total land
-      terrestrialConserved: 0.138,   // of total land (terrestrial)
-      provConservedShare: 0.65,      // share of conserved that is provincial/territorial
-      federalConservedShare: 0.35,   // share of conserved that is federal
-      nationalParks: 0.033           // of total land (subset of federal conserved)
+      federalTotal: 0.41,      
+      provTotal: 0.48,         
+      terrestrialConserved: 0.138,   
+      provConservedShare: 0.65,      
+      federalConservedShare: 0.35,   
+      nationalParks: 0.033           
     };
 
-    // Derived (of TOTAL land unless noted)
-    const provConserved = pct.terrestrialConserved * pct.provConservedShare;       // ≈ 8.97%
-    const federalConserved = pct.terrestrialConserved * pct.federalConservedShare; // ≈ 4.83%
-    const fedConservedOther = Math.max(0, federalConserved - pct.nationalParks);   // ≈ 1.53%
-    const fedOther = pct.federalTotal - federalConserved;                          // ≈ 36.17%
-    const provOther = pct.provTotal - provConserved;                               // ≈ 39.03%
+    const provConserved = pct.terrestrialConserved * pct.provConservedShare;
+    const federalConserved = pct.terrestrialConserved * pct.federalConservedShare;
+    const fedConservedOther = Math.max(0, federalConserved - pct.nationalParks);
+    const fedOther = pct.federalTotal - federalConserved;
+    const provOther = pct.provTotal - provConserved;
 
-    // ---------- HELPERS ----------
     const fmtPct = (x) => (x * 100).toFixed(1) + '%';
     const fmtArea = (x) => `${Math.round(x).toLocaleString('en-CA')} km²`;
-    const pctOfParent = (child, parent) => parent > 0 ? (child / parent) : 0;
 
-    // Colors (consistent families)
+    // New colors
     const COLORS = {
-      fedOther: '#4468c8',
-      fedConservedOther: '#58b5b1',
-      parks: '#62c7c3',
-      provOther: '#4aa457',
-      provConserved: '#86d87f',
-      private: '#f28e2b'
+      fedOther: '#4C78A8',
+      fedConservedOther: '#72B7B2',
+      parks: '#1F9E89',
+      provOther: '#E45756',
+      provConserved: '#F58518',
+      private: '#9D77CF'
     };
 
-    // ---------- ECHARTS INIT ----------
     const el = document.getElementById('chart');
     const chart = echarts.init(el);
 
-    // ---------- TREEMAP OPTION ----------
+    // TREEMAP OPTION
     const treemapData = [
       {
         name: 'Crown (public)',
@@ -141,7 +137,6 @@
           const path = (info.treePathInfo||[]).map(p=>p.name).filter(Boolean).join(' ⟶ ');
           const val = info.value;
           const pctTotal = val / LAND;
-          // compute % of parent if possible
           let parentVal = null;
           const tpi = info.treePathInfo || [];
           if (tpi.length >= 2) parentVal = tpi[tpi.length-2].value;
@@ -174,99 +169,11 @@
           formatter: (p) => `${p.name} ${fmtPct(p.value / LAND)}`
         },
         labelLayout: { hideOverlap: true },
-        itemStyle: { borderColor: '#23305e', borderWidth: 1, gapWidth: 2 },
-        levels: [
-          { itemStyle: { borderWidth: 1, gapWidth: 2 } },
-          { itemStyle: { borderWidth: 1, gapWidth: 2 } },
-          { itemStyle: { borderWidth: 1, gapWidth: 2 } }
-        ]
+        itemStyle: { borderColor: '#23305e', borderWidth: 1, gapWidth: 2 }
       }]
     };
 
-    // ---------- 100% STACKED BAR ----------
-    const stackedBarOption = {
-      backgroundColor: '#0d1328',
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' },
-        formatter: (params) => {
-          const rows = params.map(p => {
-            return `<div>${p.marker}${p.seriesName}: <b>${fmtPct(p.value)}</b> (${fmtArea(p.value * LAND)})</div>`;
-          }).join('');
-          return `<div style="font-size:12px;line-height:1.35"><b>Share of Canada’s land</b>${rows}</div>`;
-        }
-      },
-      grid: { left: 10, right: 10, bottom: 30, top: 20, containLabel: true },
-      xAxis: { type: 'value', max: 1, axisLabel: { formatter: v => (v*100)+'%' }, splitLine: { show:false } },
-      yAxis: { type: 'category', data: ['Crown vs Private','Crown split'], axisLabel: { color:'#dfe6ff' } },
-      series: [
-        // Row 0: Crown vs Private
-        { name: 'Crown (public)', type: 'bar', stack: 'row0', data: [pct.crown, null], itemStyle:{ color: '#3a55b0' } },
-        { name: 'Private', type: 'bar', stack: 'row0', data: [pct.private, null], itemStyle:{ color: COLORS.private } },
-
-        // Row 1: Crown split
-        { name: 'Federal (total)', type: 'bar', stack: 'row1', data: [null, pct.federalTotal], itemStyle:{ color: COLORS.fedOther } },
-        { name: 'Prov/Terr (total)', type: 'bar', stack: 'row1', data: [null, pct.provTotal], itemStyle:{ color: COLORS.provOther } },
-      ]
-    };
-
-    // ---------- WAFFLE (10x10) ----------
-    // 100 squares, each = 1% of Canada’s land (approx). Fill Crown first, then Private.
-    const waffleData = [];
-    const N = 100;
-    const crownSquares = Math.round(pct.crown * N); // 89
-    for (let i=0;i<N;i++){
-      const row = 9 - Math.floor(i/10); // top to bottom visually
-      const col = i % 10;
-      const isCrown = i < crownSquares;
-      waffleData.push({
-        value: 1,
-        row, col,
-        group: isCrown ? 'Crown (public)' : 'Private',
-        itemStyle: { color: isCrown ? '#3a55b0' : COLORS.private }
-      });
-    }
-
-    const waffleOption = {
-      backgroundColor: '#0d1328',
-      tooltip: {
-        formatter: (p) => {
-          const group = p.data.group;
-          return `<div style="font-size:12px">${group}</div>`;
-        }
-      },
-      grid: { left: 26, right: 16, top: 26, bottom: 40 },
-      xAxis: { type:'value', min:-0.5, max:9.5, axisLabel:{show:false}, splitLine:{show:false}, axisTick:{show:false}, axisLine:{show:false} },
-      yAxis: { type:'value', min:-0.5, max:9.5, axisLabel:{show:false}, splitLine:{show:false}, axisTick:{show:false}, axisLine:{show:false} },
-      series: [{
-        type: 'scatter',
-        symbol: 'rect',
-        symbolSize: [30, 30],
-        encode: { x: 'col', y: 'row' },
-        data: waffleData,
-        emphasis: { scale: false }
-      }],
-      graphic: [
-        { type:'text', left:'center', bottom:8, style:{ text:`Each square ≈ 1% of land  •  Crown ≈ ${fmtPct(pct.crown)}  •  Private ≈ ${fmtPct(pct.private)}`, fill:'#cbd8ff', fontSize:12 } }
-      ]
-    };
-
-    // ---------- MODE SWITCHING ----------
-    function setMode(mode){
-      document.getElementById('mode-treemap').setAttribute('aria-pressed', mode==='treemap');
-      document.getElementById('mode-bar').setAttribute('aria-pressed', mode==='bar');
-      document.getElementById('mode-waffle').setAttribute('aria-pressed', mode==='waffle');
-
-      if (mode === 'treemap') chart.setOption(treemapOption, true);
-      if (mode === 'bar') chart.setOption(stackedBarOption, true);
-      if (mode === 'waffle') chart.setOption(waffleOption, true);
-    }
-
-    document.getElementById('mode-treemap').addEventListener('click', ()=>setMode('treemap'));
-    document.getElementById('mode-bar').addEventListener('click', ()=>setMode('bar'));
-    document.getElementById('mode-waffle').addEventListener('click', ()=>setMode('waffle'));
-
-    setMode('treemap');
+    chart.setOption(treemapOption);
     window.addEventListener('resize', ()=>chart.resize());
   </script>
 </body>
