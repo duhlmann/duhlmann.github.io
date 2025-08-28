@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ECharts Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>html,body{height:100%;margin:0} #chart{height:80vh}</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+    const c = echarts.init(document.getElementById('chart'));
+    c.setOption({
+      title:{text:'It works!'},
+      tooltip:{},
+      xAxis:{type:'category',data:['A','B','C']},
+      yAxis:{type:'value'},
+      series:[{type:'bar',data:[3,5,2]}]
+    });
+    window.addEventListener('resize',()=>c.resize());
+  </script>
+</body>
+</html>
