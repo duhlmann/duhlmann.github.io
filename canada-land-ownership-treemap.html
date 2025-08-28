@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Canada Land Ownership Treemap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0b1020; --fg:#e8eefc; --muted:#a9b4ce; }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    h1{font-size:clamp(22px,3.2vw,32px);margin:0 0 8px}
+    p{color:var(--muted);margin:6px 0 14px;line-height:1.5}
+    #chart{height:68vh;min-height:420px;border-radius:16px;overflow:hidden;background:#0d1328}
+    .note{font-size:13px;color:#93a0bd;margin-top:10px}
+    a{color:#b6d4ff}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0}
+    .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;transform:translateY(1px)}
+    .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+    .chip{background:#12193a;border:1px solid #23305e;color:#d8e2ff;border-radius:999px;padding:6px 10px;font-size:12px}
+  </style>
+  <!-- Apache ECharts (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Who Owns the Land in Canada?</h1>
+    <div class="row">
+      <p class="chip">Treemap sized by area (km²)</p>
+      <p class="chip">Hover for % and km²</p>
+      <p class="chip">Click boxes to zoom · Double-click background to go up</p>
+    </div>
+    <p>
+      Based on <strong>land area only</strong> (not inland water): total land = <strong>9,093,507 km²</strong>.
+      Crown land ≈ <strong>89%</strong>, Private ≈ <strong>11%</strong>. Crown land splits into ≈ <strong>41%</strong> federal and ≈ <strong>48%</strong> provincial/territorial.
+      Within conserved lands (13.8% of terrestrial area at end of 2024), ≈ <strong>65%</strong> are managed by provinces/territories and ≈ <strong>35%</strong> by federal bodies.
+    </p>
+
+    <div id="chart"></div>
+
+    <p class="note">
+      Sources:
+      Canadian Encyclopedia — Crown vs. private and federal vs. provincial split; StatsCan — official land area; ECCC — conserved areas totals & jurisdiction split; CE — national parks area “over 3%”.
+      See links below.
+    </p>
+    <div class="legend">
+      <span><span class="sw" style="background:#4c78a8"></span>Crown · Federal (other)</span>
+      <span><span class="sw" style="background:#72b7b2"></span>National Parks (subset of Federal)</span>
+      <span><span class="sw" style="background:#59a14f"></span>Crown · Provincial/Territorial (other)</span>
+      <span><span class="sw" style="background:#8cd17d"></span>Prov/Terr Conserved (subset)</span>
+      <span><span class="sw" style="background:#f28e2b"></span>Private</span>
+    </div>
+
+    <p class="note">
+      Citations:
+      <br>• Crown vs. private; 41/48 split — Canadian Encyclopedia, “Crown Land”: <a href="https://thecanadianencyclopedia.ca/en/article/crown-land" target="_blank" rel="noopener">thecanadianencyclopedia.ca</a>
+      <br>• Canada land area — Statistics Canada: <a href="https://www150.statcan.gc.ca/n1/pub/11-402-x/2008/4017_3119/ceb4017_3119_000-eng.htm" target="_blank" rel="noopener">statcan.gc.ca</a>
+      <br>• Conserved areas totals (terrestrial 13.8% at end of 2024) and jurisdiction split (~65% provincial/territorial; ~35% federal) — ECCC indicator: <a href="https://www.canada.ca/en/environment-climate-change/services/environmental-indicators/conserved-areas.html" target="_blank" rel="noopener">canada.ca</a> and methodology PDF: <a href="https://www.canada.ca/content/dam/eccc/documents/pdf/cesindicators/canada-conserved-areas/2024/conserved-areas.pdf" target="_blank" rel="noopener">PDF</a>
+      <br>• National Parks area ≈ 3%+ of Canada’s land — Canadian Encyclopedia, “Largest National Parks in Canada”: <a href="https://www.thecanadianencyclopedia.ca/en/article/largest-national-parks-in-canada" target="_blank" rel="noopener">thecanadianencyclopedia.ca</a>
+    </p>
+  </div>
+
+  <script>
+    // --- Data (all based on land area = 9,093,507 km²) ---
+    // Percentages from sources:
+    // Crown 89%, Private 11% (Canadian Encyclopedia)
+    // Federal 41%, Provincial/Territorial 48% (Canadian Encyclopedia)
+    // Terrestrial conserved 13.8% (ECCC, end of 2024)
+    // Share of terrestrial conserved by jurisdiction: ~65% prov/terr, ~35% federal (ECCC PDF)
+    // National Parks ≈ 3.3% of land (Canadian Encyclopedia "over 3%"; widely cited ≈3.3%)
+    const LAND = 9093507;
+
+    const pct = {
+      crown: 0.89,
+      private: 0.11,
+      federalTotal: 0.41,
+      provTotal: 0.48,
+      terrestrialConserved: 0.138,
+      provConservedShare: 0.65,
+      federalConservedShare: 0.35,
+      nationalParks: 0.033 // subset of federal conserved
+    };
+
+    // Derived breakdowns
+    const provConserved = pct.terrestrialConserved * pct.provConservedShare; // ≈ 8.97%
+    const federalConserved = pct.terrestrialConserved * pct.federalConservedShare; // ≈ 4.83%
+    const fedConservedOther = Math.max(0, federalConserved - pct.nationalParks); // ≈ 1.53%
+    const fedOther = pct.federalTotal - federalConserved; // ≈ 36.17%
+    const provOther = pct.provTotal - provConserved; // ≈ 39.03%
+
+    // Helper: formatters
+    const fmtPct = (x) => (x*100).toFixed(2) + '%';
+    const fmtArea = (x) => {
+      const n = Math.round(x).toLocaleString('en-CA');
+      return `${n} km²`;
+    };
+
+    // Build treemap structure
+    const data = [
+      {
+        name: 'Crown Land (Public)',
+        value: LAND * pct.crown,
+        children: [
+          {
+            name: 'Federal Crown Land',
+            value: LAND * pct.federalTotal,
+            children: [
+              { name: 'National Parks (subset)', value: LAND * pct.nationalParks, itemStyle: { color: '#72b7b2' } },
+              { name: 'Other Federal Conserved', value: LAND * fedConservedOther, itemStyle: { color: '#6dc0be' } },
+              { name: 'Federal (Other Uses)', value: LAND * fedOther, itemStyle: { color: '#4c78a8' } }
+            ]
+          },
+          {
+            name: 'Prov/Terr Crown Land',
+            value: LAND * pct.provTotal,
+            children: [
+              { name: 'Prov/Terr Conserved (all designations)', value: LAND * provConserved, itemStyle: { color: '#8cd17d' } },
+              { name: 'Prov/Terr (Other Uses)', value: LAND * provOther, itemStyle: { color: '#59a14f' } }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Private Land',
+        value: LAND * pct.private,
+        itemStyle: { color: '#f28e2b' }
+      }
+    ];
+
+    // ECharts init
+    const chart = echarts.init(document.getElementById('chart'));
+    chart.setOption({
+      backgroundColor: '#0d1328',
+      tooltip: {
+        formatter: (info) => {
+          const treePath = info.treePathInfo.map(p => p.name).filter(Boolean).join(' ⟶ ');
+          const area = info.value;
+          // Compute percent of total land:
+          const pctOfTotal = (area / LAND);
+          return `
+            <div style="font-size:12px;line-height:1.35">
+              <div style="opacity:.85">${treePath}</div>
+              <div><b>${fmtArea(area)}</b> (${fmtPct(pctOfTotal)})</div>
+            </div>
+          `;
+        }
+      },
+      series: [{
+        type: 'treemap',
+        roam: true,
+        nodeClick: 'zoomToNode',
+        breadcrumb: { height: 24, itemStyle: { color: '#12193a' }, textStyle: { color: '#d8e2ff' } },
+        label: {
+          show: true,
+          formatter: (p) => {
+            // Short labels with % of total land
+            const pct = (p.value / LAND) * 100;
+            const name = p.name.length > 28 ? p.name.slice(0,25) + '…' : p.name;
+            return `${name}\n${pct.toFixed(1)}%`;
+          },
+          color: '#e8eefc'
+        },
+        upperLabel: { show: true, height: 30, color: '#e8eefc', backgroundColor: 'rgba(255,255,255,0.02)' },
+        itemStyle: {
+          borderColor: '#23305e',
+          borderWidth: 1,
+          gapWidth: 2
+        },
+        levels: [
+          { itemStyle: { borderWidth: 1, gapWidth: 2 } },
+          { itemStyle: { borderWidth: 1, gapWidth: 2 } },
+          { itemStyle: { borderWidth: 1, gapWidth: 2 } }
+        ],
+        data
+      }]
+    });
+
+    // Handle resize
+    window.addEventListener('resize', () => chart.resize());
+  </script>
+</body>
+</html>
