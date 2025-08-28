@@ -2,179 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Who Owns the Land in Canada?</title>
+  <title>Canada Land Ownership Treemap (Pastel)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root { --bg:#0b1020; --fg:#e8eefc; --muted:#a9b4ce; --panel:#0d1328; --stroke:#23305e; }
+    :root { --bg:#0b1020; --fg:#e8eefc; --muted:#a9b4ce; }
     html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    h1{font-size:clamp(22px,3.2vw,32px);margin:0 0 6px}
-    p{color:var(--muted);margin:6px 0 14px;line-height:1.5}
-    #chart{height:66vh;min-height:420px;border-radius:16px;overflow:hidden;background:var(--panel)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .chip{background:#12193a;border:1px solid var(--stroke);color:#d8e2ff;border-radius:999px;padding:6px 10px;font-size:12px}
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 4px}
-    .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;transform:translateY(1px)}
-    a{color:#b6d4ff}
-    .note{font-size:13px;color:#93a0bd;margin-top:10px}
-    .modes{display:flex;gap:8px;margin:10px 0 6px}
-    .btn{background:#12193a;border:1px solid var(--stroke);color:#dbe6ff;border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer}
-    .btn[aria-pressed="true"]{background:#1a2450;border-color:#3a54a6}
-    .headline{
-      font-weight:600; color:#dfe8ff; margin: 6px 0 12px;
-      background:#0f1633; border:1px solid var(--stroke); border-radius:12px; padding:10px 12px; display:inline-block
-    }
+    h1{font-size:clamp(22px,3vw,32px);margin:0 0 8px}
+    p{color:var(--muted);margin:0 0 16px}
+    #chart{width:100%;height:70vh;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .legend{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0}
+    .swatch{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;background:#121735;border:1px solid #1b2240;border-radius:999px}
+    .dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+    .footer{color:var(--muted);font-size:12px;margin-top:12px}
+    a{color:#9ecbff}
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
   <div class="wrap">
     <h1>Who Owns the Land in Canada?</h1>
-    <div class="headline">About <b>89%</b> of Canada’s land is <b>Crown</b> (public) and <b>11%</b> is private. Crown land is roughly <b>41% federal</b> and <b>48% provincial/territorial</b>.</div>
+    <p>A pastel, color-blind-friendly treemap showing the share of land by category.</p>
 
-    <div class="row">
-      <div class="modes">
-        <button class="btn" id="mode-treemap" aria-pressed="true">Treemap</button>
-        <button class="btn" id="mode-bar" aria-pressed="false">100% Stacked Bar</button>
-        <button class="btn" id="mode-waffle" aria-pressed="false">Waffle (10×10)</button>
-      </div>
-      <span class="chip">Hover for % of total · % of parent</span>
-      <span class="chip">Click treemap boxes to zoom · Double-click to go up</span>
+    <div id="chart" role="img" aria-label="Treemap of Canada land ownership shares"></div>
+
+    <!-- Simple legend -->
+    <div class="legend" aria-hidden="true">
+      <span class="swatch"><i class="dot" style="background:#8dd3c7"></i> Federal (other)</span>
+      <span class="swatch"><i class="dot" style="background:#ffffb3"></i> National Parks</span>
+      <span class="swatch"><i class="dot" style="background:#bebada"></i> Prov/Terr (other)</span>
+      <span class="swatch"><i class="dot" style="background:#fb8072"></i> Prov/Terr Conserved</span>
+      <span class="swatch"><i class="dot" style="background:#80b1d3"></i> Private</span>
     </div>
 
-    <div id="chart"></div>
-
-    <div class="legend">
-      <span><span class="sw" style="background:#4C78A8"></span>Federal (other)</span>
-      <span><span class="sw" style="background:#72B7B2"></span>Federal Conserved (other)</span>
-      <span><span class="sw" style="background:#1F9E89"></span>National Parks</span>
-      <span><span class="sw" style="background:#E45756"></span>Prov/Terr (other)</span>
-      <span><span class="sw" style="background:#F58518"></span>Prov/Terr Conserved</span>
-      <span><span class="sw" style="background:#9D77CF"></span>Private</span>
-    </div>
-
-    <p class="note">
-      Based on <strong>land area only</strong> (not inland water): total land = <strong>9,093,507 km²</strong>.
-      Conserved terrestrial areas ≈ <strong>13.8%</strong> at end of 2024 (≈65% provincial/territorial; ≈35% federal). National parks are a subset of federal conserved areas.
-    </p>
-
-    <p class="note">
-      Citations:
-      • Canadian Encyclopedia (“Crown land”) — federal/provincial vs private split. • Statistics Canada — official land area.
-      • ECCC indicator — conserved areas (13.8%) and jurisdiction split. • Canadian Encyclopedia — national parks coverage (~3%+).
-    </p>
+    <div class="footer">Total land area used for calculations: 9.88 million km².</div>
   </div>
 
   <script>
-    // ---------- DATA ----------
-    const LAND = 9093507;
-
-    const pct = {
-      crown: 0.89,
-      private: 0.11,
-      federalTotal: 0.41,      
-      provTotal: 0.48,         
-      terrestrialConserved: 0.138,   
-      provConservedShare: 0.65,      
-      federalConservedShare: 0.35,   
-      nationalParks: 0.033           
-    };
-
-    const provConserved = pct.terrestrialConserved * pct.provConservedShare;
-    const federalConserved = pct.terrestrialConserved * pct.federalConservedShare;
-    const fedConservedOther = Math.max(0, federalConserved - pct.nationalParks);
-    const fedOther = pct.federalTotal - federalConserved;
-    const provOther = pct.provTotal - provConserved;
-
-    const fmtPct = (x) => (x * 100).toFixed(1) + '%';
-    const fmtArea = (x) => `${Math.round(x).toLocaleString('en-CA')} km²`;
-
-    // New colors
+    // Pastel ColorBrewer-like palette (qualitative)
     const COLORS = {
-      fedOther: '#4C78A8',
-      fedConservedOther: '#72B7B2',
-      parks: '#1F9E89',
-      provOther: '#E45756',
-      provConserved: '#F58518',
-      private: '#9D77CF'
+      "Federal (other)": "#8dd3c7",
+      "National Parks": "#ffffb3",
+      "Prov/Terr (other)": "#bebada",
+      "Prov/Terr Conserved": "#fb8072",
+      "Private": "#80b1d3"
     };
 
-    const el = document.getElementById('chart');
-    const chart = echarts.init(el);
+    // Percent shares (must sum ~100)
+    const sharesPct = {
+      "National Parks": 3.3,
+      "Prov/Terr Conserved": 7.2,
+      "Federal (other)": 8.7,
+      "Prov/Terr (other)": 69.8,
+      "Private": 11.0
+    };
 
-    // TREEMAP OPTION
-    const treemapData = [
-      {
-        name: 'Crown (public)',
-        value: LAND * pct.crown,
-        children: [
-          {
-            name: 'Federal Crown',
-            value: LAND * pct.federalTotal,
-            children: [
-              { name: 'National Parks', value: LAND * pct.nationalParks, itemStyle: { color: COLORS.parks } },
-              { name: 'Federal Conserved (other)', value: LAND * fedConservedOther, itemStyle: { color: COLORS.fedConservedOther } },
-              { name: 'Federal (other uses)', value: LAND * fedOther, itemStyle: { color: COLORS.fedOther } }
-            ]
-          },
-          {
-            name: 'Prov/Terr Crown',
-            value: LAND * pct.provTotal,
-            children: [
-              { name: 'Prov/Terr Conserved', value: LAND * provConserved, itemStyle: { color: COLORS.provConserved } },
-              { name: 'Prov/Terr (other uses)', value: LAND * provOther, itemStyle: { color: COLORS.provOther } }
-            ]
-          }
-        ]
-      },
-      { name: 'Private', value: LAND * pct.private, itemStyle: { color: COLORS.private } }
-    ];
+    // Total area in km²
+    const TOTAL = 9_880_000;
 
-    const treemapOption = {
-      backgroundColor: '#0d1328',
+    // Build data array with absolute areas and fixed colors
+    function km2(n){ return n.toLocaleString('en-CA'); }
+    function pct(n){ return n.toFixed(1).replace(/\.0$/, '') + '%'; }
+
+    const data = Object.entries(sharesPct).map(([name, p]) => {
+      const area = TOTAL * (p / 100);
+      return {
+        name,
+        value: Math.round(area),         // value controls box size
+        itemStyle: { color: COLORS[name] },
+        label: { color: '#0b1020', fontWeight: 600 },
+        tooltipData: { pct: p, km2: area }
+      };
+    });
+
+    const chart = echarts.init(document.getElementById('chart'), null, { renderer: 'canvas' });
+
+    const option = {
+      backgroundColor: 'transparent',
+      textStyle: { color: '#e8eefc' },
       tooltip: {
+        trigger: 'item',
+        backgroundColor: '#0b1020',
+        borderColor: '#1b2240',
+        textStyle: { color: '#e8eefc' },
         formatter: (info) => {
-          const path = (info.treePathInfo||[]).map(p=>p.name).filter(Boolean).join(' ⟶ ');
-          const val = info.value;
-          const pctTotal = val / LAND;
-          let parentVal = null;
-          const tpi = info.treePathInfo || [];
-          if (tpi.length >= 2) parentVal = tpi[tpi.length-2].value;
-          const pctParent = parentVal ? (val / parentVal) : null;
-
+          const d = info.data.tooltipData;
           return `
-            <div style="font-size:12px;line-height:1.35">
-              <div style="opacity:.85">${path}</div>
-              <div><b>${fmtArea(val)}</b> • ${fmtPct(pctTotal)} of Canada
-                ${pctParent!=null ? ` • ${fmtPct(pctParent)} of parent` : ''}</div>
-            </div>
+            <div style="font-weight:700;margin-bottom:4px">${info.data.name}</div>
+            <div>Share: ${pct(d.pct)}</div>
+            <div>Area: ${km2(Math.round(d.km2))} km²</div>
           `;
         }
       },
       series: [{
         type: 'treemap',
-        data: treemapData,
-        roam: true,
-        nodeClick: 'zoomToNode',
-        breadcrumb: {
-          show: true, height: 24,
-          itemStyle: { color: '#12193a' },
-          textStyle: { color: '#d8e2ff' }
+        roam: false,
+        nodeClick: false,
+        breadcrumb: { show: false },
+        leafDepth: 1,
+        label: { show: true, formatter: '{b}', color: '#0b1020' },
+        upperLabel: { show: true, color: '#0b1020' },
+        itemStyle: {
+          borderColor: '#0b1020',
+          borderWidth: 2,
+          gapWidth: 3
         },
-        upperLabel: {
-          show: true, height: 24, color: '#ffffff', overflow: 'truncate'
-        },
-        label: {
-          show: true, overflow: 'truncate', width: 240, lineHeight: 16, fontSize: 12, color: '#e8edf7',
-          formatter: (p) => `${p.name} ${fmtPct(p.value / LAND)}`
-        },
-        labelLayout: { hideOverlap: true },
-        itemStyle: { borderColor: '#23305e', borderWidth: 1, gapWidth: 2 }
+        levels: [
+          {
+            itemStyle: { borderColor: '#0b1020', borderWidth: 2, gapWidth: 3 },
+            upperLabel: { show: true, color: '#0b1020' }
+          }
+        ],
+        data
       }]
     };
 
-    chart.setOption(treemapOption);
-    window.addEventListener('resize', ()=>chart.resize());
+    chart.setOption(option);
+    window.addEventListener('resize', () => chart.resize());
   </script>
 </body>
 </html>
+      
+      
+            
