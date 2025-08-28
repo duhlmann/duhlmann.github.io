@@ -2,126 +2,181 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Canada Land Ownership Treemap (Pastel)</title>
+  <title>Canada Land Use — Clear Proportions</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root { --bg:#0b1020; --fg:#e8eefc; --muted:#a9b4ce; }
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    :root{
+      --bg:#0b1020;      /* dark navy */
+      --fg:#e8eefc;      /* near-white */
+      --muted:#a9b4ce;   /* slate */
+      --card:#121936;
+      --accent:#8fbdf2;  /* soft blue */
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif}
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    h1{font-size:clamp(22px,3vw,32px);margin:0 0 8px}
-    p{color:var(--muted);margin:0 0 16px}
-    #chart{width:100%;height:70vh;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-    .legend{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0}
-    .swatch{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;background:#121735;border:1px solid #1b2240;border-radius:999px}
-    .dot{width:12px;height:12px;border-radius:3px;display:inline-block}
-    .footer{color:var(--muted);font-size:12px;margin-top:12px}
-    a{color:#9ecbff}
+    h1{font-size:clamp(24px,3.2vw,36px);margin:0 0 6px}
+    p.lede{color:var(--muted);margin:0 0 16px;font-size:clamp(14px,2vw,16px)}
+    .grid{display:grid;gap:16px;grid-template-columns:1fr; }
+    @media (min-width: 900px){ .grid{grid-template-columns: 1.2fr 1fr;} }
+    .card{background:var(--card);border-radius:16px;padding:12px 12px 4px 12px;box-shadow:0 4px 30px rgba(0,0,0,.25)}
+    .card h2{font-size:18px;margin:6px 8px 8px;color:var(--accent);font-weight:600}
+    .note{color:var(--muted);font-size:13px;margin:8px 0 0}
+    .chart{height:360px;width:100%}
+    footer{color:var(--muted);font-size:12px;margin:20px 4px 40px}
+    a{color:#cddcff}
+    .legend-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 8px 10px}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#1b2347;border:1px solid #2a366d;padding:6px 10px;border-radius:999px;font-size:12px;color:#cfd7ff}
+    .swatch{width:10px;height:10px;border-radius:2px;display:inline-block}
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
   <div class="wrap">
-    <h1>Who Owns the Land in Canada?</h1>
-    <p>A pastel, color-blind-friendly treemap showing the share of land by category.</p>
+    <h1>How Canada’s Land Is Used</h1>
+    <p class="lede">Most land in Canada is Crown land. The charts below show the breakdown by category. Hover for exact values.</p>
 
-    <div id="chart" role="img" aria-label="Treemap of Canada land ownership shares"></div>
+    <!-- Quick custom legend pills so colors are readable on dark bg -->
+    <div class="legend-row" id="custom-legend"></div>
 
-    <!-- Simple legend -->
-    <div class="legend" aria-hidden="true">
-      <span class="swatch"><i class="dot" style="background:#8dd3c7"></i> Federal (other)</span>
-      <span class="swatch"><i class="dot" style="background:#ffffb3"></i> National Parks</span>
-      <span class="swatch"><i class="dot" style="background:#bebada"></i> Prov/Terr (other)</span>
-      <span class="swatch"><i class="dot" style="background:#fb8072"></i> Prov/Terr Conserved</span>
-      <span class="swatch"><i class="dot" style="background:#80b1d3"></i> Private</span>
+    <div class="grid">
+      <section class="card">
+        <h2>Share of Total Land (100% stacked bar)</h2>
+        <div id="bar" class="chart"></div>
+        <p class="note">Each segment is proportional to its share of Canada’s total area (≈9.88 million km²).</p>
+      </section>
+
+      <section class="card">
+        <h2>Breakdown by Category (donut)</h2>
+        <div id="donut" class="chart"></div>
+        <p class="note">Together, federal + provincial Crown lands make up ~89% of Canada; private land is ~11%.</p>
+      </section>
     </div>
 
-    <div class="footer">Total land area used for calculations: 9.88 million km².</div>
+    <footer>
+      Data categories (example shares): Federal Parks 3.3%, Provincial Parks 7.2%, Other Federal Crown 8.7%, Other Provincial Crown 69.8%, Private 11.0.
+      Customize text and sources as you refine your citations.
+    </footer>
   </div>
 
+  <!-- ECharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
   <script>
-    // Pastel ColorBrewer-like palette (qualitative)
-    const COLORS = {
-      "Federal (other)": "#8dd3c7",
-      "National Parks": "#ffffb3",
-      "Prov/Terr (other)": "#bebada",
-      "Prov/Terr Conserved": "#fb8072",
-      "Private": "#80b1d3"
-    };
+    // === Data ===
+    const categories = [
+      { name: "Other Provincial Crown Land", value: 69.8 },
+      { name: "Other Federal Crown Land",    value: 8.7  },
+      { name: "Provincial Parks & Protected",value: 7.2  },
+      { name: "Federal Parks (National)",    value: 3.3  },
+      { name: "Private Land",                value: 11.0 }
+    ];
 
-    // Percent shares (must sum ~100)
-    const sharesPct = {
-      "National Parks": 3.3,
-      "Prov/Terr Conserved": 7.2,
-      "Federal (other)": 8.7,
-      "Prov/Terr (other)": 69.8,
-      "Private": 11.0
-    };
+    // Pastel palette (distinct hues, high contrast on dark bg)
+    const palette = [
+      "#9AD0F5", // soft blue
+      "#B6E3B5", // soft green
+      "#F7C2E7", // soft pink
+      "#FBD79F", // soft orange
+      "#C9C4FF"  // soft purple
+    ];
 
-    // Total area in km²
-    const TOTAL = 9_880_000;
-
-    // Build data array with absolute areas and fixed colors
-    function km2(n){ return n.toLocaleString('en-CA'); }
-    function pct(n){ return n.toFixed(1).replace(/\.0$/, '') + '%'; }
-
-    const data = Object.entries(sharesPct).map(([name, p]) => {
-      const area = TOTAL * (p / 100);
-      return {
-        name,
-        value: Math.round(area),         // value controls box size
-        itemStyle: { color: COLORS[name] },
-        label: { color: '#0b1020', fontWeight: 600 },
-        tooltipData: { pct: p, km2: area }
-      };
+    // Build custom legend pills
+    const legendHost = document.getElementById("custom-legend");
+    categories.forEach((c, i) => {
+      const pill = document.createElement("div");
+      pill.className = "pill";
+      pill.innerHTML = `<span class="swatch" style="background:${palette[i % palette.length]}"></span>${c.name}`;
+      legendHost.appendChild(pill);
     });
 
-    const chart = echarts.init(document.getElementById('chart'), null, { renderer: 'canvas' });
+    // === BAR (100% Stacked) ===
+    const barEl = document.getElementById('bar');
+    const barChart = echarts.init(barEl, null, { renderer: 'canvas' });
 
-    const option = {
+    // We use a single category (Canada) and stack segments horizontally to 100%
+    const barOption = {
       backgroundColor: 'transparent',
-      textStyle: { color: '#e8eefc' },
+      grid: { left: 8, right: 8, top: 10, bottom: 30, containLabel: true },
+      xAxis: {
+        type: 'value',
+        max: 100,
+        axisLabel: { color: '#cfd7ff', formatter: '{value}%' },
+        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }
+      },
+      yAxis: {
+        type: 'category',
+        data: ['Canada'],
+        axisLabel: { color: '#cfd7ff' },
+        axisTick: { show: false },
+        axisLine: { show: false }
+      },
       tooltip: {
         trigger: 'item',
-        backgroundColor: '#0b1020',
-        borderColor: '#1b2240',
-        textStyle: { color: '#e8eefc' },
-        formatter: (info) => {
-          const d = info.data.tooltipData;
-          return `
-            <div style="font-weight:700;margin-bottom:4px">${info.data.name}</div>
-            <div>Share: ${pct(d.pct)}</div>
-            <div>Area: ${km2(Math.round(d.km2))} km²</div>
-          `;
+        formatter: params => {
+          return `<b>${params.seriesName}</b><br/>Share: ${params.value}%`;
         }
       },
-      series: [{
-        type: 'treemap',
-        roam: false,
-        nodeClick: false,
-        breadcrumb: { show: false },
-        leafDepth: 1,
-        label: { show: true, formatter: '{b}', color: '#0b1020' },
-        upperLabel: { show: true, color: '#0b1020' },
-        itemStyle: {
-          borderColor: '#0b1020',
-          borderWidth: 2,
-          gapWidth: 3
+      series: categories.map((c, i) => ({
+        name: c.name,
+        type: 'bar',
+        stack: 'total',
+        emphasis: { focus: 'series' },
+        itemStyle: { color: palette[i % palette.length], borderRadius: [0,0,0,0] },
+        label: {
+          show: c.value >= 4, // avoid clutter on tiny segments
+          position: 'inside',
+          formatter: `${c.value}%`,
+          color: '#0b1020',
+          fontWeight: 600
         },
-        levels: [
-          {
-            itemStyle: { borderColor: '#0b1020', borderWidth: 2, gapWidth: 3 },
-            upperLabel: { show: true, color: '#0b1020' }
-          }
-        ],
-        data
+        data: [c.value]
+      }))
+    };
+    barChart.setOption(barOption);
+
+    // === DONUT ===
+    const donutEl = document.getElementById('donut');
+    const donutChart = echarts.init(donutEl, null, { renderer: 'canvas' });
+
+    const donutOption = {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        formatter: p => `<b>${p.name}</b><br/>${p.value}% of land`
+      },
+      series: [{
+        name: 'Land Use',
+        type: 'pie',
+        radius: ['50%', '75%'],
+        avoidLabelOverlap: true,
+        itemStyle: { borderColor: '#0b1020', borderWidth: 2 },
+        label: {
+          show: true,
+          formatter: ({ name, percent }) => `${name}\n${percent}%`,
+          color: '#e8eefc',
+          minMargin: 6
+        },
+        labelLine: { show: true, length: 8, length2: 8 },
+        data: categories.map((c, i) => ({ name: c.name, value: c.value, itemStyle: { color: palette[i % palette.length] } }))
+      }],
+      graphic: [{
+        type: 'text',
+        left: 'center',
+        top: 'center',
+        style: {
+          text: 'Crown vs Private',
+          fill: '#a9b4ce',
+          fontSize: 14,
+          fontWeight: 500
+        }
       }]
     };
+    donutChart.setOption(donutOption);
 
-    chart.setOption(option);
-    window.addEventListener('resize', () => chart.resize());
+    // Responsive
+    window.addEventListener('resize', () => {
+      barChart.resize();
+      donutChart.resize();
+    });
   </script>
 </body>
 </html>
-      
-      
-            
