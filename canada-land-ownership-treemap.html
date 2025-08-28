@@ -126,24 +126,91 @@
       }
     ];
 
-    // ECharts init
-    const chart = echarts.init(document.getElementById('chart'));
-    chart.setOption({
-      backgroundColor: '#0d1328',
-      tooltip: {
+    <!-- ECharts init -->
+<script>
+  // assumes: LAND (total area), fmtArea(number)->string, fmtPct(0..1)->"11.0%",
+  // and DATA = [...] (your treemap nodes)
+  const chart = echarts.init(document.getElementById('chart'));
+
+  const option = {
+    backgroundColor: '#0d1328',
+
+    tooltip: {
+      formatter: (info) => {
+        const treePath = (info.treePathInfo || [])
+          .map(p => p.name)
+          .filter(Boolean)
+          .join(' ⟶ ');
+        const area = info.value;
+        const pctOfTotal = area / LAND;
+        return `
+          <div style="font-size:12px;line-height:1.35">
+            <div style="opacity:.85">${treePath}</div>
+            <div><b>${fmtArea(area)}</b> (${fmtPct(pctOfTotal)})</div>
+          </div>
+        `;
+      }
+    },
+
+    series: [{
+      type: 'treemap',
+      data: DATA,               // <-- your existing data array
+      roam: false,
+      nodeClick: false,
+      breadcrumb: { show: false },
+
+      // Parent tiles label at upper-left (single line, truncated if needed)
+      upperLabel: {
+        show: true,
+        height: 22,
+        color: '#ffffff',
+        overflow: 'truncate'
+      },
+
+      // Child labels: single line with percent; truncate instead of wrapping
+      label: {
+        show: true,
+        overflow: 'truncate',
+        width: 240,            // tweak: 200–260 depending on your layout
+        lineHeight: 16,
+        fontSize: 12,
+        color: '#e8edf7',
         formatter: (info) => {
-          const treePath = info.treePathInfo.map(p => p.name).filter(Boolean).join(' ⟶ ');
+          const name = info.name;
           const area = info.value;
-          // Compute percent of total land:
-          const pctOfTotal = (area / LAND);
-          return `
-            <div style="font-size:12px;line-height:1.35">
-              <div style="opacity:.85">${treePath}</div>
-              <div><b>${fmtArea(area)}</b> (${fmtPct(pctOfTotal)})</div>
-            </div>
-          `;
+          const pct = area / LAND;
+          // Use your fmtPct if available, else fallback to 1-decimal percent
+          const pctText = (typeof fmtPct === 'function')
+            ? fmtPct(pct)
+            : ((pct * 100).toFixed(1) + '%');
+          return `${name} ${pctText}`;
         }
       },
+
+      // Prevent overlapping labels; keeps them readable
+      labelLayout: {
+        hideOverlap: true
+      },
+
+      // Subtle gaps and borders so tiles are distinct
+      itemStyle: {
+        borderColor: '#0d1328',
+        borderWidth: 1,
+        gapWidth: 2
+      },
+
+      // Optional per-level styling (fine to keep as-is)
+      levels: [
+        { itemStyle: { borderColor: '#0d1328', gapWidth: 3 } },
+        { itemStyle: { gapWidth: 2 } },
+        { itemStyle: { gapWidth: 1 } }
+      ]
+    }]
+  };
+
+  chart.setOption(option, true); // true = replace to ensure our label settings apply
+</script>
+If any labels still try to wrap on very small tiles, bump label.width up a bit (e.g., 260) or let
       series: [{
         type: 'treemap',
         roam: true,
