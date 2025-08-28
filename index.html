@@ -1,106 +1,83 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Data & Machine Learning Portfolio — Dominica Uhlmann</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root { --bg:#0b1020; --fg:#e8eefc; --muted:#a9b4ce; --card:#0f1733; --line:#22305b; --pill:#131b3b; }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
-    a{color:#b6d4ff;text-decoration:none}
-    a.pill{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--pill)}
-    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
-    header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-    h1{font-size:clamp(22px,3.2vw,32px);margin:0}
-    .lead{color:var(--muted);margin:6px 0 14px}
-    .btns{display:flex;gap:10px;flex-wrap:wrap}
-    h2{font-size:clamp(18px,2.4vw,26px);margin:22px 0 10px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-    .tag{display:inline-block;background:#13204a;border:1px solid #243466;color:#d8e2ff;border-radius:999px;padding:4px 8px;margin:0 6px 8px 0;font-size:12px}
-    .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    footer{border-top:1px solid var(--line);margin-top:22px;padding:16px 0;color:#93a0bd;font-size:14px;text-align:center}
-    code.comment{display:block;background:#0e1630;border:1px dashed #2a3a6f;color:#cdd7ff;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;white-space:pre-wrap}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Data & Machine Learning Portfolio</h1>
-        <p class="lead">Beginner-friendly demos and real projects: CNNs for images, tidy data cleaning workflows, and clear visualizations.</p>
-      </div>
-      <div class="btns">
-        <a class="pill" href="https://github.com/duhlmann" target="_blank" rel="noopener">GitHub Profile</a>
-      </div>
-    </header>
+<section class="grid" aria-label="Project cards">
 
-    <section>
-      <div class="card">
-        <span class="tag">Quick note</span>
-        <h3>How to add a new project</h3>
-        <code class="comment"><strong>1)</strong> Duplicate a card below.
-<strong>2)</strong> Change the title, description, and links.
-<strong>3)</strong> Commit to <em>main</em>. Your site auto-updates.</code>
-        <div class="links">
-          <a class="pill" href="#projects">Jump to cards ↓</a>
-        </div>
-      </div>
-    </section>
 
-    <h2 id="projects" style="margin:12px 0 12px">Projects</h2>
-    <div class="grid">
+<!-- Project 1: Pneumonia CNN -->
+<article class="card">
+<div class="tags"><span class="tag">Keras</span><span class="tag">CNN</span><span class="tag">Medical Imaging</span></div>
+<h3>Pneumonia CNN Model</h3>
+<p>Convolutional neural network classifying chest X-rays as pneumonia vs. normal. Trained in Colab; model saved as <code>.keras</code>.</p>
+<div class="links">
+<!-- TODO: Replace with your working notebook HTML or nbviewer link -->
+<a class="pill" href="YOUR_PNEUMONIA_NOTEBOOK_LINK" target="_blank" rel="noopener">View notebook</a>
+<!-- Example Colab link pattern (if file is in this repo):
+https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/path/to/notebook.ipynb -->
+<a class="pill secondary" href="YOUR_PNEUMONIA_COLAB_LINK" target="_blank" rel="noopener">Open in Colab</a>
+<a class="pill secondary" href="https://github.com/duhlmann/Examplepneumonia-cnn" target="_blank" rel="noopener">View repository</a>
+</div>
+</article>
 
-      <!-- Project 1: Pneumonia CNN -->
-      <article class="card">
-        <div class="tags"><span class="tag">Keras</span><span class="tag">CNN</span><span class="tag">Medical Imaging</span></div>
-        <h3>Pneumonia CNN Model</h3>
-        <p>Convolutional neural network classifying chest X-rays as pneumonia vs. normal. Trained in Colab; model saved as <code>.keras</code>.</p>
-        <div class="links">
-          <a class="pill" href="https://github.com/duhlmann/Examplepneumonia-cnn" target="_blank" rel="noopener">View repository</a>
-        </div>
-      </article>
 
-      <!-- Project 2: Linear Regression starter -->
-      <article class="card">
-        <div class="tags"><span class="tag">Linear Regression</span><span class="tag">scikit-learn</span></div>
-        <h3>Mortgage Price Prediction (Linear Regression)</h3>
-        <p>Simple linear regression starter notebook for predicting a target with lag features, with clear, beginner-friendly code.</p>
-        <div class="links">
-          <a class="pill" href="Linear_Regression_starter.ipynb" target="_blank" rel="noopener">View notebook</a>
-        </div>
-      </article>
+<!-- Project 2: Mortgage Linear Regression -->
+<article class="card">
+<div class="tags"><span class="tag">scikit-learn</span><span class="tag">Starter</span></div>
+<h3>Mortgage Price Prediction (Linear Regression)</h3>
+<p>Linear regression model predicting mortgage prices. Demonstrates feature engineering with <strong>lag variables</strong>, model fitting in scikit-learn, and a clear step-by-step explanation for beginners.</p>
+<div class="links">
+<a class="pill" href="YOUR_MORTGAGE_NOTEBOOK_LINK" target="_blank" rel="noopener">View notebook</a>
+<a class="pill secondary" href="YOUR_MORTGAGE_COLAB_LINK" target="_blank" rel="noopener">Open in Colab</a>
+</div>
+</article>
 
-      <!-- Project 3: Ultrasound toy ML -->
-      <article class="card">
-        <div class="tags"><span class="tag">Ultrasound</span><span class="tag">ML</span></div>
-        <h3>Ultrasound Defect Detection (Toy Data)</h3>
-        <p>Toy ultrasonic dataset (polyamide pulse-echo). Loads, cleans, plots signals, then trains a small model.</p>
-        <div class="links">
-          <a class="pill" href="ultrasonic_pulse_echo_ml.ipynb" target="_blank" rel="noopener">View notebook</a>
-        </div>
-      </article>
 
-      <!-- Project 4: Canada Land Ownership Treemap -->
-      <article class="card">
-        <div class="tags"><span class="tag">Data Visualization</span><span class="tag">ECharts</span></div>
-        <h3>Canada Land Ownership Treemap</h3>
-        <p>Interactive treemap showing who owns land in Canada (federal, provincial/territorial, private, and parks). Built with ECharts.</p>
-        <div class="links">
-          <a class="pill" href="canada-land-ownership-treemap.html" target="_blank" rel="noopener">View treemap</a>
-        </div>
-      </article>
+<!-- Project 3: Ultrasound Defect Detection (Toy Data) -->
+<article class="card">
+<div class="tags"><span class="tag">Ultrasound</span><span class="tag">Signal Processing</span><span class="tag">FFT</span></div>
+<h3>Ultrasound Defect Detection (Toy Data)</h3>
+<p>Toy ultrasonic dataset (polyamide pulse‑echo) with waveform plots, FFT analysis, and spectrogram visualizations. Demonstrates converting 1D signals into 2D images for ML.</p>
+<div class="links">
+<a class="pill" href="YOUR_ULTRASOUND_NOTEBOOK_LINK" target="_blank" rel="noopener">View notebook</a>
+<a class="pill secondary" href="YOUR_ULTRASOUND_COLAB_LINK" target="_blank" rel="noopener">Open in Colab</a>
+</div>
+</article>
 
-    </div>
 
-    <footer>
-      © <span id="year"></span> Dominica Uhlmann • Built with GitHub Pages
-    </footer>
-  </div>
+<!-- Project 4: Canada Land Ownership Treemap (ECharts) -->
+<article class="card">
+<div class="tags"><span class="tag">Data Visualization</span><span class="tag">ECharts</span></div>
+<h3>Canada Land Ownership Treemap</h3>
+<p>Interactive treemap showing who owns land in Canada (federal, provincial, private, and parks). Built with ECharts, styled for GitHub Pages.</p>
+<div class="links">
+<a class="pill" href="canada-land-ownership-treemap.html" target="_blank" rel="noopener">View treemap</a>
+</div>
+</article>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+
+</section>
+
+
+<footer>
+© <span id="year"></span> Dominica Uhlmann • Built with GitHub Pages
+</footer>
+</div>
+
+
+<script>
+// Set current year in footer
+document.getElementById('year').textContent = new Date().getFullYear();
+
+
+// Optional: smooth scroll for in-page links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+a.addEventListener('click', (e) => {
+const id = a.getAttribute('href').slice(1);
+const el = document.getElementById(id);
+if (el) {
+e.preventDefault();
+el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+});
+});
+</script>
 </body>
 </html>
