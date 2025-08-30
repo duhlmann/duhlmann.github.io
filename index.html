@@ -3,201 +3,152 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dominica Uhlmann • Data & Machine Learning Portfolio</title>
-  <meta name="description" content="Beginner-friendly demos and real ML projects: CNNs, regression baselines with lag features, tidy data cleaning workflows, and interactive visualizations." />
+  <title>Dominica Uhlmann — Data & ML Portfolio</title>
+  <meta name="description" content="Projects in data science, machine learning, and visualization." />
   <style>
-    :root {
-      --bg:#0a0f1f; --muted:#93a4ba; --text:#e8eef6;
-      --accent:#58c6ff; --shadow:0 14px 30px rgba(0,0,0,.45); --radius:16px;
+    :root{
+      --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb; --accent:#6ee7b7; --accent2:#93c5fd;
     }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
-      color: var(--text);
-      background:
-        radial-gradient(1200px 700px at 15% -10%, rgba(14,165,233,.18), transparent 60%),
-        radial-gradient(900px 600px at 110% 0%, rgba(88,198,255,.14), transparent 55%),
-        linear-gradient(180deg, #020617 0%, #0a0f1f 100%);
-      background-attachment: fixed;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    a { color: var(--accent); text-decoration: none; pointer-events: auto; }
-    a:hover { text-decoration: underline; }
-    /* Guard against accidental overlays */
-    header, .section-title, .grid, .card, .links, footer { position: relative; z-index: 1; }
-
-    .container { max-width: 1100px; margin: 0 auto; padding: 28px; }
-    header { text-align: center; padding: 64px 0 30px; }
-    header h1 { margin: 0 0 12px; font-weight: 800; letter-spacing: .2px; font-size: clamp(28px,4vw,42px); }
-    header p { margin: 0 auto; max-width: 900px; color: var(--muted); font-size: clamp(16px,2.2vw,18px); }
-    .actions { margin-top: 22px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .pill {
-      display: inline-block;
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: linear-gradient(180deg,rgba(56,189,248,.22),rgba(56,189,248,.12));
-      color: #e6f6ff;
-      font-weight: 600;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(56,189,248,.38);
-      cursor: pointer;
-    }
-    .pill:hover { transform: translateY(-1px); text-decoration: none; background: rgba(56,189,248,.28); }
-    .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-    .section-title { display: flex; align-items: center; gap: 10px; margin: 26px 0 14px; color: #cbd5e1; letter-spacing: .4px; font-size: 14px; text-transform: uppercase; }
-    .divider { flex: 1; height: 1px; background: linear-gradient(90deg,rgba(56,189,248,.45),transparent); }
-    .grid { display: grid; gap: 22px; margin-top: 16px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }
-    .card {
-      background: linear-gradient(180deg,rgba(11,17,35,.78),rgba(11,17,35,.92));
-      border: 1px solid rgba(148,163,184,.22);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 220px;
-      backdrop-filter: blur(2px);
-    }
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag {
-      font-size: 12px;
-      letter-spacing: .3px;
-      color: #dff3ff;
-      background: rgba(22,35,56,.85);
-      border: 1px solid rgba(148,163,184,.3);
-      border-radius: 999px;
-      padding: 4px 10px;
-      white-space: nowrap;
-    }
-    .card h3 { margin: 4px 0 0; font-size: 20px; letter-spacing: .2px; }
-    .card p { margin: 0; color: #cbd5e1; font-size: 15px; }
-    .links { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
-    .links .pill {
-      background: linear-gradient(180deg,rgba(2,132,199,.60),rgba(2,132,199,.38));
-      border-color: rgba(56,189,248,.5);
-    }
-    .links .pill.secondary {
-      background: linear-gradient(180deg,rgba(148,163,184,.18),rgba(148,163,184,.1));
-      color: #e5e7eb;
-      border-color: rgba(148,163,184,.4);
-    }
-    footer { text-align: center; color: var(--muted); padding: 44px 0 26px; font-size: 14px; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b0f19 0%, #0b1324 100%);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}
+    header .name{font-weight:700;font-size:1.125rem}
+    .pill{display:inline-block;border:1px solid #243045;border-radius:999px;padding:6px 10px;font-size:.85rem;color:var(--muted)}
+    .hero{padding:48px 0;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
+    .hero h1{font-size:2.2rem;line-height:1.15;margin:0 0 10px}
+    .hero p{color:var(--muted);margin:.25rem 0 1rem}
+    .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b0f19;font-weight:700;border:none;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(147,197,253,.15);}
+    .btn.secondary{background:#1c2537;color:var(--text);border:1px solid #243045}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,#0f172a 0%, #0b1224 100%);border:1px solid #1f2a40;border-radius:18px;padding:18px;transition:.2s;}
+    .card:hover{transform:translateY(-2px);border-color:#2b3a56}
+    .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid #26334b;border-radius:999px;padding:4px 8px;margin-right:6px}
+    .card h3{margin:10px 0 6px;font-size:1.05rem}
+    .card p{margin:0 0 12px;color:var(--muted);min-height:40px}
+    .links{display:flex;gap:10px;flex-wrap:wrap}
+    footer{margin:40px 0 10px;color:var(--muted);font-size:.9rem}
+    code.comment{display:block;color:#9aa4b2;background:#0c1220;border:1px dashed #243045;padding:10px;border-radius:12px;margin:14px 0}
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Data & Machine Learning Portfolio</h1>
-      <p>I build beginner-friendly demos and real projects: CNNs for medical images, linear/logistic baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
-      <div class="actions">
-        <a class="pill" href="#projects">See Projects</a>
-        <a class="pill" href="https://github.com/duhlmann" target="_blank" rel="noopener noreferrer">GitHub Profile</a>
-      </div>
+      <div class="name">Dominica Uhlmann</div>
+      <nav><a class="pill" href="#projects">Projects</a> <a class="pill" href="#contact">Contact</a></nav>
     </header>
 
-    <div class="section-title" id="projects">
-      <span>Projects</span>
-      <span class="divider"></span>
-    </div>
-
-    <section class="grid" aria-label="Project cards">
-
-      <!-- Project 1: Pneumonia CNN -->
-      <article class="card">
-        <div class="tags">
-          <span class="tag">Keras</span>
-          <span class="tag">CNN</span>
-          <span class="tag">Medical Imaging</span>
+    <section class="hero">
+      <div>
+        <h1>Data & Machine Learning Portfolio</h1>
+        <p>I build beginner-friendly demos and real projects: CNNs for medical images, linear/logistic baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
+        <div class="cta">
+          <a class="btn" href="#projects">See Projects</a>
+          <a class="btn secondary" href="https://github.com/duhlmann" target="_blank" rel="noopener">GitHub Profile</a>
         </div>
-        <h3>Pneumonia CNN Model</h3>
-        <p>
-          Convolutional neural network classifying chest X-rays as pneumonia vs. normal.
-          Trained in Colab; model saved as <code>.keras</code>.
-        </p>
-        <div class="links">
-          <a class="pill"
-             href="https://nbviewer.org/github/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb"
-             target="_blank" rel="noopener noreferrer">View notebook</a>
-          <a class="pill secondary"
-             href="https://colab.research.google.com/github/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb"
-             target="_blank" rel="noopener noreferrer">Open in Colab</a>
-          <a class="pill secondary"
-             href="https://github.com/duhlmann/Examplepneumonia-cnn"
-             target="_blank" rel="noopener noreferrer">View repository</a>
-        </div>
-      </article>
-
-      <!-- Project 2: Mortgage Linear Regression -->
-      <article class="card">
-        <div class="tags">
-          <span class="tag">scikit-learn</span>
-          <span class="tag">Starter</span>
-        </div>
-        <h3>Mortgage Price Prediction (Linear Regression)</h3>
-        <p>
-          Linear regression model predicting mortgage prices. Demonstrates feature engineering with
-          <strong>lag variables</strong>, model fitting in scikit-learn, and a clear step-by-step explanation for beginners.
-        </p>
-        <div class="links">
-          <a class="pill"
-             href="https://nbviewer.org/github/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb"
-             target="_blank" rel="noopener noreferrer">View notebook</a>
-          <a class="pill secondary"
-             href="https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb"
-             target="_blank" rel="noopener noreferrer">Open in Colab</a>
-        </div>
-      </article>
-
-      <!-- Project 3: Ultrasound Defect Detection (Toy Data) -->
-      <article class="card">
-        <div class="tags">
-          <span class="tag">Ultrasound</span>
-          <span class="tag">Signal Processing</span>
-          <span class="tag">FFT</span>
-        </div>
-        <h3>Ultrasound Defect Detection (Toy Data)</h3>
-        <p>
-          Toy ultrasonic dataset (polyamide pulse-echo) with waveform plots, FFT analysis, and spectrogram visualizations.
-          Demonstrates converting 1D signals into 2D images for ML.
-        </p>
-        <div class="links">
-          <a class="pill"
-             href="https://nbviewer.org/github/duhlmann/duhlmann.github.io/blob/main/ultrasonic_pulse_echo_ml.ipynb"
-             target="_blank" rel="noopener noreferrer">View notebook</a>
-          <a class="pill secondary"
-             href="https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/ultrasonic_pulse_echo_ml.ipynb"
-             target="_blank" rel="noopener noreferrer">Open in Colab</a>
-        </div>
-      </article>
-
+      </div>
       
     </section>
+
+    <h2 id="projects" style="margin:12px 0 12px">Projects</h2>
+    <div class="grid">
+
+    <!-- Project 1: Pneumonia CNN -->
+<article class="card">
+  <div class="tags">
+    <span class="tag">Keras</span>
+    <span class="tag">CNN</span>
+    <span class="tag">Medical Imaging</span>
+  </div>
+  <h3>Pneumonia CNN Model</h3>
+  <p>Convolutional neural network classifying chest X-rays as pneumonia vs. normal. Trained in Colab; model saved as <code>.keras</code>.</p>
+<div class="links">
+  <a class="pill" 
+     href="https://github.com/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb" 
+     target="_blank" rel="noopener">
+    View notebook
+  </a>
+
+  <a class="pill" 
+     href="https://colab.research.google.com/github/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb" 
+     target="_blank" rel="noopener">
+    Open in Colab
+  </a>
+</div>
+</article>
+
+      
+     <!-- Project 2: Linear Regression Mortgage Rates -->
+<article class="card">
+  <div class="tags">
+    <span class="tag">scikit-learn</span>
+    <span class="tag">Starter</span>
+  </div>
+  <h3>Mortgage Price Prediction (Linear Regression)</h3>
+  <p>
+    Linear regression model predicting mortgage prices. Demonstrates feature 
+  engineering with lag variables, model fitting in scikit-learn, and clear 
+  step-by-step explanation for beginners.
+  </p>
+  <div class="links">
+    <a class="pill" 
+       href="https://github.com/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb" 
+       target="_blank" rel="noopener">
+      View notebook
+    </a>
+
+    <a class="pill" 
+       href="https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb" 
+       target="_blank" rel="noopener">
+      Open in Colab
+    </a>
+  </div>
+</article>
+
+      
+
+     
+
+     <!-- Project 3: Ultrasound Defect Detection -->
+ <article class="card">
+  <div class="tags">
+    <span class="tag">Ultrasound</span>
+    <span class="tag">Machine Learning</span>
+  </div>
+  <h3>Ultrasound Defect Detection (Toy Data)</h3>
+  <p>
+    Toy ultrasonic dataset (polyamide pulse-echo) with waveform plots, FFT analysis,
+    and spectrogram visualizations. Demonstrates converting 1D signals into 2D images for ML.
+  </p>
+  <div class="links">
+  <a class="pill" 
+     href="https://github.com/duhlmann/UltrasoundDefectDetection-ToyData-/blob/main/ultrasonic_pulse_echo_ml.ipynb" 
+     target="_blank" rel="noopener">
+    View notebook
+  </a>
+
+  <a class="pill" 
+     href="https://colab.research.google.com/github/duhlmann/UltrasoundDefectDetection-ToyData-/blob/main/ultrasonic_pulse_echo_ml.ipynb" 
+     target="_blank" rel="noopener">
+    Open in Colab
+  </a>
+</div>
+
+</a>
+  </div>
+</article>
 
     <footer>
       © <span id="year"></span> Dominica Uhlmann • Built with GitHub Pages
     </footer>
   </div>
 
-  <!-- No JS in safe mode (prevents any script from blocking clicks) -->
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
-If buttons still don’t respond after this:
-
-Hard refresh your page (Shift+Reload) or open with https://duhlmann.github.io/?v=2
-
-If that still fails, tell me and I’ll give you a 10-second test snippet to detect if an invisible element is blocking clicks.
-
-
-
-
-
-
-ChatGPT can make mistakes. Check important info. See Cookie Preferences.
