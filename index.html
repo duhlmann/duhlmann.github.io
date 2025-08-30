@@ -24,8 +24,10 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-    a { color: var(--accent); text-decoration: none; }
+    a { color: var(--accent); text-decoration: none; pointer-events: auto; }
     a:hover { text-decoration: underline; }
+    /* Guard against accidental overlays */
+    header, .section-title, .grid, .card, .links, footer { position: relative; z-index: 1; }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 28px; }
     header { text-align: center; padding: 64px 0 30px; }
@@ -94,7 +96,7 @@
       <p>I build beginner-friendly demos and real projects: CNNs for medical images, linear/logistic baselines, and tidy data cleaning workflows. Clear, simple, and reproducible.</p>
       <div class="actions">
         <a class="pill" href="#projects">See Projects</a>
-        <a class="pill" href="https://github.com/duhlmann" target="_blank" rel="noopener">GitHub Profile</a>
+        <a class="pill" href="https://github.com/duhlmann" target="_blank" rel="noopener noreferrer">GitHub Profile</a>
       </div>
     </header>
 
@@ -120,13 +122,13 @@
         <div class="links">
           <a class="pill"
              href="https://nbviewer.org/github/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb"
-             target="_blank" rel="noopener">View notebook</a>
+             target="_blank" rel="noopener noreferrer">View notebook</a>
           <a class="pill secondary"
              href="https://colab.research.google.com/github/duhlmann/Examplepneumonia-cnn/blob/main/Pneumonia_CNN_Model.ipynb"
-             target="_blank" rel="noopener">Open in Colab</a>
+             target="_blank" rel="noopener noreferrer">Open in Colab</a>
           <a class="pill secondary"
              href="https://github.com/duhlmann/Examplepneumonia-cnn"
-             target="_blank" rel="noopener">View repository</a>
+             target="_blank" rel="noopener noreferrer">View repository</a>
         </div>
       </article>
 
@@ -144,10 +146,10 @@
         <div class="links">
           <a class="pill"
              href="https://nbviewer.org/github/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb"
-             target="_blank" rel="noopener">View notebook</a>
+             target="_blank" rel="noopener noreferrer">View notebook</a>
           <a class="pill secondary"
              href="https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/Linear_Regression_starter.ipynb"
-             target="_blank" rel="noopener">Open in Colab</a>
+             target="_blank" rel="noopener noreferrer">Open in Colab</a>
         </div>
       </article>
 
@@ -166,10 +168,10 @@
         <div class="links">
           <a class="pill"
              href="https://nbviewer.org/github/duhlmann/duhlmann.github.io/blob/main/ultrasonic_pulse_echo_ml.ipynb"
-             target="_blank" rel="noopener">View notebook</a>
+             target="_blank" rel="noopener noreferrer">View notebook</a>
           <a class="pill secondary"
              href="https://colab.research.google.com/github/duhlmann/duhlmann.github.io/blob/main/ultrasonic_pulse_echo_ml.ipynb"
-             target="_blank" rel="noopener">Open in Colab</a>
+             target="_blank" rel="noopener noreferrer">Open in Colab</a>
         </div>
       </article>
 
@@ -185,9 +187,13 @@
           Built with ECharts, styled for GitHub Pages.
         </p>
         <div class="links">
+          <!-- Use the folder URL if it contains an index.html -->
           <a class="pill"
              href="https://duhlmann.github.io/canada-land-ownership-stackedbar/"
-             target="_blank" rel="noopener">View chart</a>
+             target="_blank" rel="noopener noreferrer">View chart</a>
+          <!-- Or use the file at the repo root:
+          <a class="pill" href="https://duhlmann.github.io/canada-land-ownership-stackedbar.html" target="_blank" rel="noopener noreferrer">View chart</a>
+          -->
         </div>
       </article>
 
@@ -198,29 +204,21 @@
     </footer>
   </div>
 
+  <!-- No JS in safe mode (prevents any script from blocking clicks) -->
   <script>
-    // Year
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Smooth scroll for in-page anchors
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', (e) => {
-        const id = a.getAttribute('href').slice(1);
-        const el = document.getElementById(id);
-        if (el) {
-          e.preventDefault();
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
   </script>
 </body>
 </html>
+If buttons still don’t respond after this:
+
+Hard refresh your page (Shift+Reload) or open with https://duhlmann.github.io/?v=2
+
+If that still fails, tell me and I’ll give you a 10-second test snippet to detect if an invisible element is blocking clicks.
 
 
 
 
 
 
-
-
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
