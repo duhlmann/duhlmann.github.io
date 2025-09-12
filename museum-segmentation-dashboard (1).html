@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Museum Visitor Segmentation — Interactive Dashboard</title>
+  <style>
+    :root{--bg:#0b0f19;--card:#121827;--muted:#9aa4b2;--text:#e5e7eb;--accent:#6ee7b7;--accent2:#93c5fd}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+    h1{font-size:clamp(22px,2.8vw,32px);margin:0 0 10px}
+    p.lead{color:var(--muted);margin:0 0 20px}
+    .card{background:var(--card);border:1px solid #1e293b;border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .row{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
+    .col-12{grid-column:span 12}
+    .col-6{grid-column:span 12}
+    @media(min-width:900px){.col-6{grid-column:span 6}}
+    .btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0f19;border:none;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .pill{display:inline-block;background:#0f172a;border:1px solid #233049;color:var(--muted);padding:6px 10px;border-radius:999px;font-size:13px}
+    .grid-3{display:grid;grid-template-columns:repeat(1,1fr);gap:14px}
+    @media(min-width:900px){.grid-3{grid-template-columns:repeat(3,1fr)}}
+    .chart{height:340px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid #243244}
+    th{text-align:left;color:#cbd5e1}
+    .muted{color:var(--muted)}
+    footer{margin:24px 0 8px;color:var(--muted);font-size:14px;text-align:center}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Museum Visitor Segmentation</h1>
+    <p class="lead">Upload your clustered CSV (must include <code>ClusterLabel</code>, <code>Spend</code>, <code>GroupSize</code>, and <code>VisitFrequency</code>).</p>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between">
+        <div>
+          <label class="pill">Choose CSV →</label>
+          <input id="csvInput" type="file" accept=".csv" style="margin-left:8px;color:#e5e7eb" />
+        </div>
+        <button class="btn" id="demoBtn">Load demo data</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="card col-6"><h3>Segment Share</h3><div id="pie" class="chart"></div></div>
+      <div class="card col-6"><h3>Average Spend</h3><div id="barSpend" class="chart"></div></div>
+      <div class="card col-6"><h3>Average Group Size</h3><div id="barGroup" class="chart"></div></div>
+      <div class="card col-6"><h3>Average Visit Frequency</h3><div id="barFreq" class="chart"></div></div>
+    </div>
+    <div class="card">
+      <h3>Summary Table</h3>
+      <div class="muted" id="meta"></div>
+      <div style="overflow:auto"><table id="summaryTable"></table></div>
+    </div>
+    <footer>© <span id="year"></span> Museum Visitor Segmentation — ECharts</footer>
+  </div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function parseCSV(text){
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines.shift().split(',');
+    return lines.map(l=>{
+      const c=l.split(',');
+      const o={};
+      headers.forEach((h,i)=>o[h]=c[i]);
+      return o;
+    });
+  }
+
+  function summarize(rows){
+    const mapFreq={"First time":0,"Occasional":1,"Regular":2};
+    const groups={};
+    for(const r of rows){
+      const l=r.ClusterLabel||"Unknown";
+      const s=+r.Spend;
+      const g=+r.GroupSize;
+      const v=r.VisitFreqEncoded!==undefined?+r.VisitFreqEncoded:mapFreq[r.VisitFrequency]??NaN;
+      if(!groups[l]) groups[l]={count:0,spend:0,gs:0,vfe:0};
+      groups[l].count++;
+      groups[l].spend+=s;
+      groups[l].gs+=g;
+      groups[l].vfe+=v;
+    }
+    const labels=Object.keys(groups);
+    const share=labels.map(l=>({name:l,value:groups[l].count}));
+    const spendAvg=labels.map(l=>(groups[l].spend/groups[l].count).toFixed(2));
+    const groupAvg=labels.map(l=>(groups[l].gs/groups[l].count).toFixed(2));
+    const vfeAvg=labels.map(l=>(groups[l].vfe/groups[l].count).toFixed(2));
+    return {labels,share,spendAvg,groupAvg,vfeAvg};
+  }
+
+  function renderCharts(s){
+    const{labels,share,spendAvg,groupAvg,vfeAvg}=s;
+    echarts.init(document.getElementById('pie')).setOption({
+      series:[{type:'pie',radius:['35%','70%'],data:share}]
+    });
+    function mk(id,d){
+      echarts.init(document.getElementById(id)).setOption({
+        xAxis:{type:'category',data:labels},
+        yAxis:{type:'value'},
+        series:[{type:'bar',data:d}]
+      });
+    }
+    mk('barSpend',spendAvg);
+    mk('barGroup',groupAvg);
+    mk('barFreq',vfeAvg);
+  }
+
+  function renderTable(s){
+    const{labels,share,spendAvg,groupAvg,vfeAvg}=s;
+    let t='<thead><tr><th>Segment</th><th>Share</th><th>Avg Spend</th><th>Avg Group</th><th>Avg Freq</th></tr></thead>';
+    t+='<tbody>'+labels.map((l,i)=>`<tr><td>${l}</td><td>${share[i].value}</td><td>${spendAvg[i]}</td><td>${groupAvg[i]}</td><td>${vfeAvg[i]}</td></tr>`).join('')+'</tbody>';
+    document.getElementById('summaryTable').innerHTML=t;
+  }
+
+  async function handleFile(file){
+    const text=await file.text();
+    const rows=parseCSV(text);
+    const s=summarize(rows);
+    renderCharts(s);
+    renderTable(s);
+  }
+
+  document.getElementById('csvInput').addEventListener('change',e=>{
+    const f=e.target.files?.[0];
+    if(f) handleFile(f);
+  });
+
+  const demoCSV=`VisitorType,Membership,GroupSize,Age,Spend,VisitFrequency,ClusterLabel,VisitFreqEncoded
+Local,Yes,2,Adult,52.1,Regular,Regular Locals (families/friends),2
+Tourist,No,4,Adult,30.2,First time,Tourists / One-time visitors,0
+School,No,25,Teen,40.6,Occasional,School Groups,1`;
+
+  document.getElementById('demoBtn').addEventListener('click',()=>{
+    const rows=parseCSV(demoCSV);
+    const s=summarize(rows);
+    renderCharts(s);
+    renderTable(s);
+  });
+</script>
+</body>
+</html>
