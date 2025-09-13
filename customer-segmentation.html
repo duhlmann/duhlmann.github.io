@@ -4,145 +4,207 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Customer Segmentation — Interactive Dashboard</title>
+  <meta name="description" content="Upload clustered CSV and explore segment stats with ECharts." />
   <style>
-    :root{--bg:#0b0f19;--card:#121827;--muted:#9aa4b2;--text:#e5e7eb;--accent:#6ee7b7;--accent2:#93c5fd}
+    :root{
+      --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb; --accent:#6ee7b7; --accent2:#93c5fd;
+    }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
-    h1{font-size:clamp(22px,2.8vw,32px);margin:0 0 10px}
-    p.lead{color:var(--muted);margin:0 0 20px}
-    .card{background:var(--card);border:1px solid #1e293b;border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
-    .row{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
-    .col-12{grid-column:span 12}
-    .col-6{grid-column:span 12}
-    @media(min-width:900px){.col-6{grid-column:span 6}}
-    .btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0f19;border:none;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .pill{display:inline-block;background:#0f172a;border:1px solid #233049;color:var(--muted);padding:6px 10px;border-radius:999px;font-size:13px}
-    .grid-3{display:grid;grid-template-columns:repeat(1,1fr);gap:14px}
-    @media(min-width:900px){.grid-3{grid-template-columns:repeat(3,1fr)}}
-    .chart{height:340px}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    a{color:var(--accent2);text-decoration:none}
+    header{display:flex;align-items:center;gap:16px;margin:8px 0 16px}
+    .btn{display:inline-block;background:var(--card);border:1px solid #1f2937;color:var(--text);
+         padding:10px 14px;border-radius:999px;cursor:pointer}
+    .btn:hover{border-color:#334155}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 18px}
+    .hint{color:var(--muted);font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:12px}
+    .card h3{margin:0 0 8px;font-size:18px}
+    .chart{width:100%;height:320px}
     table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;border-bottom:1px solid #243244}
-    th{text-align:left;color:#cbd5e1}
-    .muted{color:var(--muted)}
-    footer{margin:24px 0 8px;color:var(--muted);font-size:14px;text-align:center}
+    th,td{border-bottom:1px solid #1f2937;padding:8px 10px;text-align:left}
+    footer{margin:24px 0;color:var(--muted);font-size:14px}
+    @media (max-width: 720px){ .grid{grid-template-columns:1fr} }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
-  <p style="margin:16px 0;">
-  <a href="/" style="text-decoration:none;padding:8px 12px;border:1px solid #ccc;border-radius:12px;">← Back to Portfolio</a>
-</p>
   <div class="wrap">
-    <h1>Customer Segmentation</h1>
-    <p class="lead">Upload your clustered CSV (must include <code>ClusterLabel</code>, <code>Spend</code>, <code>GroupSize</code>, and <code>VisitFrequency</code>).</p>
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between">
-        <div>
-          <label class="pill">Choose CSV →</label>
-          <input id="csvInput" type="file" accept=".csv" style="margin-left:8px;color:#e5e7eb" />
-        </div>
-        <button class="btn" id="demoBtn">Load demo data</button>
+    <header>
+      <a href="index.html" class="btn">← Back to Portfolio</a>
+      <h1 style="margin:0;">Customer Segmentation</h1>
+    </header>
+
+    <p class="hint">Upload your clustered CSV (must include columns: <code>ClusterLabel</code>, <code>Spend</code>, <code>GroupSize</code>, <code>VisitFrequency</code>).</p>
+
+    <div class="controls">
+      <label class="btn" style="position:relative;overflow:hidden;">
+        Choose CSV
+        <input id="csvInput" type="file" accept=".csv,text/csv" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
+      </label>
+      <button id="demoBtn" class="btn">Load demo data</button>
+      <span id="status" class="hint"></span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Segment Share</h3>
+        <div id="share" class="chart"></div>
+      </div>
+      <div class="card">
+        <h3>Average Spend</h3>
+        <div id="avgSpend" class="chart"></div>
+      </div>
+      <div class="card">
+        <h3>Average Group Size</h3>
+        <div id="avgGroup" class="chart"></div>
+      </div>
+      <div class="card">
+        <h3>Average Visit Frequency</h3>
+        <div id="avgFreq" class="chart"></div>
       </div>
     </div>
-    <div class="row">
-      <div class="card col-6"><h3>Segment Share</h3><div id="pie" class="chart"></div></div>
-      <div class="card col-6"><h3>Average Spend</h3><div id="barSpend" class="chart"></div></div>
-      <div class="card col-6"><h3>Average Group Size</h3><div id="barGroup" class="chart"></div></div>
-      <div class="card col-6"><h3>Average Visit Frequency</h3><div id="barFreq" class="chart"></div></div>
-    </div>
-    <div class="card">
+
+    <div class="card" style="margin-top:16px;">
       <h3>Summary Table</h3>
-      <div class="muted" id="meta"></div>
-      <div style="overflow:auto"><table id="summaryTable"></table></div>
+      <div id="tableWrap"></div>
     </div>
-    <footer>© <span id="year"></span> Museum Visitor Segmentation — ECharts</footer>
+
+    <footer>© <span id="year"></span> Customer Segmentation — ECharts</footer>
   </div>
 
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
+  <!-- ECharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
-  function parseCSV(text){
-    const lines = text.trim().split(/\r?\n/);
-    const headers = lines.shift().split(',');
-    return lines.map(l=>{
-      const c=l.split(',');
-      const o={};
-      headers.forEach((h,i)=>o[h]=c[i]);
-      return o;
-    });
-  }
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-  function summarize(rows){
-    const mapFreq={"First time":0,"Occasional":1,"Regular":2};
-    const groups={};
-    for(const r of rows){
-      const l=r.ClusterLabel||"Unknown";
-      const s=+r.Spend;
-      const g=+r.GroupSize;
-      const v=r.VisitFreqEncoded!==undefined?+r.VisitFreqEncoded:mapFreq[r.VisitFrequency]??NaN;
-      if(!groups[l]) groups[l]={count:0,spend:0,gs:0,vfe:0};
-      groups[l].count++;
-      groups[l].spend+=s;
-      groups[l].gs+=g;
-      groups[l].vfe+=v;
+    const statusEl = document.getElementById('status');
+    const charts = {
+      share: echarts.init(document.getElementById('share')),
+      avgSpend: echarts.init(document.getElementById('avgSpend')),
+      avgGroup: echarts.init(document.getElementById('avgGroup')),
+      avgFreq: echarts.init(document.getElementById('avgFreq')),
+    };
+    window.addEventListener('resize', ()=>Object.values(charts).forEach(c=>c.resize()));
+
+    // Minimal CSV parser (comma-separated, header row)
+    function parseCSV(text){
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(',').map(h=>h.trim());
+      const req = ['ClusterLabel','Spend','GroupSize','VisitFrequency'];
+      for (const r of req){
+        if (!headers.includes(r)) throw new Error(`Missing required column: ${r}`);
+      }
+      const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+      const rows = [];
+      for (let i=1;i<lines.length;i++){
+        if (!lines[i].trim()) continue;
+        const cells = lines[i].split(',').map(s=>s.trim());
+        rows.push({
+          ClusterLabel: String(cells[idx.ClusterLabel]),
+          Spend: Number(cells[idx.Spend]),
+          GroupSize: Number(cells[idx.GroupSize]),
+          VisitFrequency: Number(cells[idx.VisitFrequency]),
+        });
+      }
+      return rows;
     }
-    const labels=Object.keys(groups);
-    const share=labels.map(l=>({name:l,value:groups[l].count}));
-    const spendAvg=labels.map(l=>(groups[l].spend/groups[l].count).toFixed(2));
-    const groupAvg=labels.map(l=>(groups[l].gs/groups[l].count).toFixed(2));
-    const vfeAvg=labels.map(l=>(groups[l].vfe/groups[l].count).toFixed(2));
-    return {labels,share,spendAvg,groupAvg,vfeAvg};
-  }
 
-  function renderCharts(s){
-    const{labels,share,spendAvg,groupAvg,vfeAvg}=s;
-    echarts.init(document.getElementById('pie')).setOption({
-      series:[{type:'pie',radius:['35%','70%'],data:share}]
-    });
-    function mk(id,d){
-      echarts.init(document.getElementById(id)).setOption({
-        xAxis:{type:'category',data:labels},
-        yAxis:{type:'value'},
-        series:[{type:'bar',data:d}]
+    function summarize(rows){
+      const by = {};
+      for (const r of rows){
+        if (!by[r.ClusterLabel]) by[r.ClusterLabel] = {n:0, spend:0, group:0, freq:0};
+        const b = by[r.ClusterLabel];
+        b.n += 1;
+        b.spend += r.Spend;
+        b.group += r.GroupSize;
+        b.freq  += r.VisitFrequency;
+      }
+      const labels = Object.keys(by).sort();
+      const counts = labels.map(k=>by[k].n);
+      const avgSpend = labels.map(k=> +(by[k].spend/by[k].n).toFixed(2));
+      const avgGroup = labels.map(k=> +(by[k].group/by[k].n).toFixed(2));
+      const avgFreq  = labels.map(k=> +(by[k].freq /by[k].n).toFixed(2));
+      return {labels, counts, avgSpend, avgGroup, avgFreq};
+    }
+
+    function render({labels, counts, avgSpend, avgGroup, avgFreq}){
+      charts.share.setOption({
+        tooltip:{trigger:'item'},
+        series:[{type:'pie', radius:['35%','70%'],
+          data: labels.map((l,i)=>({name:l, value:counts[i]})),
+          label:{formatter:'{b}: {d}%'}
+        }]
       });
+      charts.avgSpend.setOption({
+        tooltip:{trigger:'axis'},
+        xAxis:{type:'category', data:labels},
+        yAxis:{type:'value', name:'$ (avg)'},
+        series:[{type:'bar', data:avgSpend}]
+      });
+      charts.avgGroup.setOption({
+        tooltip:{trigger:'axis'},
+        xAxis:{type:'category', data:labels},
+        yAxis:{type:'value', name:'people (avg)'},
+        series:[{type:'bar', data:avgGroup}]
+      });
+      charts.avgFreq.setOption({
+        tooltip:{trigger:'axis'},
+        xAxis:{type:'category', data:labels},
+        yAxis:{type:'value', name:'visits (avg)'},
+        series:[{type:'bar', data:avgFreq}]
+      });
+
+      const tbody = labels.map((l,i)=>
+        `<tr><td>${l}</td><td>${counts[i]}</td><td>${avgSpend[i]}</td><td>${avgGroup[i]}</td><td>${avgFreq[i]}</td></tr>`
+      ).join('');
+      document.getElementById('tableWrap').innerHTML =
+        `<div class="hint" style="margin-bottom:6px">Calculated from uploaded/demo data</div>
+         <table>
+          <thead><tr><th>Cluster</th><th>Count</th><th>Avg Spend</th><th>Avg Group</th><th>Avg Visit Freq</th></tr></thead>
+          <tbody>${tbody}</tbody>
+         </table>`;
     }
-    mk('barSpend',spendAvg);
-    mk('barGroup',groupAvg);
-    mk('barFreq',vfeAvg);
-  }
 
-  function renderTable(s){
-    const{labels,share,spendAvg,groupAvg,vfeAvg}=s;
-    let t='<thead><tr><th>Segment</th><th>Share</th><th>Avg Spend</th><th>Avg Group</th><th>Avg Freq</th></tr></thead>';
-    t+='<tbody>'+labels.map((l,i)=>`<tr><td>${l}</td><td>${share[i].value}</td><td>${spendAvg[i]}</td><td>${groupAvg[i]}</td><td>${vfeAvg[i]}</td></tr>`).join('')+'</tbody>';
-    document.getElementById('summaryTable').innerHTML=t;
-  }
+    function loadDemo(){
+      // Tiny toy dataset
+      const demoCSV = `ClusterLabel,Spend,GroupSize,VisitFrequency
+Local,32,2,5
+Local,28,2,4
+Tourist,60,3,2
+Tourist,55,4,2
+School,12,20,1
+School,10,18,1
+Member,45,2,6
+Member,50,2,6`;
+      const rows = parseCSV(demoCSV);
+      render(summarize(rows));
+      statusEl.textContent = 'Demo data loaded.';
+    }
 
-  async function handleFile(file){
-    const text=await file.text();
-    const rows=parseCSV(text);
-    const s=summarize(rows);
-    renderCharts(s);
-    renderTable(s);
-  }
+    document.getElementById('demoBtn').addEventListener('click', loadDemo);
 
-  document.getElementById('csvInput').addEventListener('change',e=>{
-    const f=e.target.files?.[0];
-    if(f) handleFile(f);
-  });
+    document.getElementById('csvInput').addEventListener('change', async (e)=>{
+      statusEl.textContent = '';
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try{
+        const text = await file.text();
+        const rows = parseCSV(text);
+        render(summarize(rows));
+        statusEl.textContent = `Loaded ${rows.length} rows from “${file.name}”.`;
+      }catch(err){
+        console.error(err);
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
 
-  const demoCSV=`VisitorType,Membership,GroupSize,Age,Spend,VisitFrequency,ClusterLabel,VisitFreqEncoded
-Local,Yes,2,Adult,52.1,Regular,Regular Locals (families/friends),2
-Tourist,No,4,Adult,30.2,First time,Tourists / One-time visitors,0
-School,No,25,Teen,40.6,Occasional,School Groups,1`;
-
-  document.getElementById('demoBtn').addEventListener('click',()=>{
-    const rows=parseCSV(demoCSV);
-    const s=summarize(rows);
-    renderCharts(s);
-    renderTable(s);
-  });
-</script>
+    // Auto-load demo so the page never looks empty
+    loadDemo();
+  </script>
 </body>
 </html>
+  
+ 
