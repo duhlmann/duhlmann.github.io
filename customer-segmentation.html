@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Customer Segmentation — Interactive Dashboard</title>
-  <meta name="description" content="Upload clustered CSV and explore segment stats with ECharts." />
+  <meta name="description" content="Customer segments visualized with ECharts." />
   <style>
     :root{
       --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb; --accent:#6ee7b7; --accent2:#93c5fd;
@@ -17,8 +17,6 @@
     .btn{display:inline-block;background:var(--card);border:1px solid #1f2937;color:var(--text);
          padding:10px 14px;border-radius:999px;cursor:pointer}
     .btn:hover{border-color:#334155}
-    .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 18px}
-    .hint{color:var(--muted);font-size:14px}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
     .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:12px}
     .card h3{margin:0 0 8px;font-size:18px}
@@ -35,17 +33,6 @@
       <a href="index.html" class="btn">← Back to Portfolio</a>
       <h1 style="margin:0;">Customer Segmentation</h1>
     </header>
-
-    <p class="hint">Upload your clustered CSV (must include columns: <code>ClusterLabel</code>, <code>Spend</code>, <code>GroupSize</code>, <code>VisitFrequency</code>).</p>
-
-    <div class="controls">
-      <label class="btn" style="position:relative;overflow:hidden;">
-        Choose CSV
-        <input id="csvInput" type="file" accept=".csv,text/csv" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
-      </label>
-      <button id="demoBtn" class="btn">Load demo data</button>
-      <span id="status" class="hint"></span>
-    </div>
 
     <div class="grid">
       <div class="card">
@@ -80,7 +67,6 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    const statusEl = document.getElementById('status');
     const charts = {
       share: echarts.init(document.getElementById('share')),
       avgSpend: echarts.init(document.getElementById('avgSpend')),
@@ -89,14 +75,9 @@
     };
     window.addEventListener('resize', ()=>Object.values(charts).forEach(c=>c.resize()));
 
-    // Minimal CSV parser (comma-separated, header row)
     function parseCSV(text){
       const lines = text.trim().split(/\r?\n/);
       const headers = lines[0].split(',').map(h=>h.trim());
-      const req = ['ClusterLabel','Spend','GroupSize','VisitFrequency'];
-      for (const r of req){
-        if (!headers.includes(r)) throw new Error(`Missing required column: ${r}`);
-      }
       const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
       const rows = [];
       for (let i=1;i<lines.length;i++){
@@ -161,15 +142,13 @@
         `<tr><td>${l}</td><td>${counts[i]}</td><td>${avgSpend[i]}</td><td>${avgGroup[i]}</td><td>${avgFreq[i]}</td></tr>`
       ).join('');
       document.getElementById('tableWrap').innerHTML =
-        `<div class="hint" style="margin-bottom:6px">Calculated from uploaded/demo data</div>
-         <table>
+        `<table>
           <thead><tr><th>Cluster</th><th>Count</th><th>Avg Spend</th><th>Avg Group</th><th>Avg Visit Freq</th></tr></thead>
           <tbody>${tbody}</tbody>
          </table>`;
     }
 
     function loadDemo(){
-      // Tiny toy dataset
       const demoCSV = `ClusterLabel,Spend,GroupSize,VisitFrequency
 Local,32,2,5
 Local,28,2,4
@@ -181,30 +160,10 @@ Member,45,2,6
 Member,50,2,6`;
       const rows = parseCSV(demoCSV);
       render(summarize(rows));
-      statusEl.textContent = 'Demo data loaded.';
     }
 
-    document.getElementById('demoBtn').addEventListener('click', loadDemo);
-
-    document.getElementById('csvInput').addEventListener('change', async (e)=>{
-      statusEl.textContent = '';
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try{
-        const text = await file.text();
-        const rows = parseCSV(text);
-        render(summarize(rows));
-        statusEl.textContent = `Loaded ${rows.length} rows from “${file.name}”.`;
-      }catch(err){
-        console.error(err);
-        statusEl.textContent = 'Error: ' + err.message;
-      }
-    });
-
-    // Auto-load demo so the page never looks empty
+    // Auto-load demo on page load
     loadDemo();
   </script>
 </body>
 </html>
-  
- 
