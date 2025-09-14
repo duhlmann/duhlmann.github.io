@@ -147,20 +147,25 @@
           <tbody>${tbody}</tbody>
          </table>`;
     }
-
-    function loadDemo(){
-      const demoCSV = `ClusterLabel,Spend,GroupSize,VisitFrequency
+function loadDemo(){
+  const demoCSV = `ClusterLabel,Spend,GroupSize,VisitFrequency
 Local,32,2,5
 Local,28,2,4
+Local,35,3,5
+Local,30,2,6
+Local,29,2,4
 Tourist,60,3,2
 Tourist,55,4,2
+Tourist,70,3,3
 School,12,20,1
 School,10,18,1
 Member,45,2,6
-Member,50,2,6`;
-      const rows = parseCSV(demoCSV);
-      render(summarize(rows));
-    }
+Member,50,2,6
+Member,48,3,5
+Member,52,2,7`;
+  const rows = parseCSV(demoCSV);
+  render(summarize(rows));
+}
 
     // Auto-load demo on page load
     loadDemo();
