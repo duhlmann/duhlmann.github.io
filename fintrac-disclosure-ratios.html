@@ -68,6 +68,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Analogy card -->
+    <div class="card" style="margin-top:16px;text-align:center">
+      <p style="font-size:18px;margin:0 0 6px">📊 Analogy</p>
+      <p style="font-size:16px;line-height:1.5;margin:0">
+        Only <b>0.00118%</b> of all reports ended up as a BC disclosure.<br>
+        That’s like finding <b>1 grain of rice</b> in <b>85,000 bowls</b>.
+      </p>
+    </div>
   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -77,14 +86,12 @@
   const disclosures = 1900;
   const bc = 332;
 
-  // Formatter
-  const fmt = n => n.toLocaleString();
-
-  // Donut 1: Reports ➜ Disclosures
+  // Donut 1: Reports ➜ Disclosures (orange vs grey)
   const d1 = echarts.init(document.getElementById('donut1'));
   d1.setOption({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', formatter: p => `${p.name}: <b>${p.percent.toFixed(4)}%</b><br>${fmt(p.value)}` },
+    color: ['#f97316', '#374151'], // force palette
+    tooltip: { trigger: 'item', formatter: p => `${p.name}: <b>${p.percent.toFixed(4)}%</b><br>${(p.value).toLocaleString()}` },
     series: [{
       type: 'pie',
       radius: ['60%','80%'],
@@ -92,17 +99,18 @@
       label: { show: true, formatter: p => p.name === 'Disclosures' ? 'Disclosures' : '', color: '#e5e7eb' },
       labelLine: { show: false },
       data: [
-        { name: 'Disclosures', value: disclosures, itemStyle: { color: '#f97316' } }, // orange
-        { name: 'Not disclosed', value: reports - disclosures, itemStyle: { color: '#374151' } } // grey
+        { name: 'Disclosures', value: disclosures },
+        { name: 'Not disclosed', value: reports - disclosures }
       ]
     }]
   });
 
-  // Donut 2: Disclosures ➜ BC
+  // Donut 2: Disclosures ➜ BC (teal vs grey)
   const d2 = echarts.init(document.getElementById('donut2'));
   d2.setOption({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', formatter: p => `${p.name}: <b>${p.percent.toFixed(1)}%</b><br>${fmt(p.value)}` },
+    color: ['#0ea5e9', '#374151'], // force palette
+    tooltip: { trigger: 'item', formatter: p => `${p.name}: <b>${p.percent.toFixed(1)}%</b><br>${(p.value).toLocaleString()}` },
     legend: { bottom: 0, textStyle: { color: '#e5e7eb' } },
     series: [{
       type: 'pie',
@@ -110,8 +118,8 @@
       minAngle: 3,
       label: { color: '#e5e7eb' },
       data: [
-        { name: 'BC', value: bc, itemStyle: { color: '#0ea5e9' } }, // teal
-        { name: 'Other provinces/territories', value: disclosures - bc, itemStyle: { color: '#374151' } } // grey
+        { name: 'BC', value: bc },
+        { name: 'Other provinces/territories', value: disclosures - bc }
       ]
     }]
   });
@@ -120,3 +128,4 @@
 </script>
 </body>
 </html>
+       
