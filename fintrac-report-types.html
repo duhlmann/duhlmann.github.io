@@ -9,25 +9,33 @@
     body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,sans-serif}
     .wrap{max-width:960px;margin:28px auto;padding:0 16px}
     h1{font-size:clamp(22px,4vw,30px);margin:0 0 8px}
-    .box{background:var(--card);border-radius:16px;padding:16px}
+    .box{background:var(--card);border-radius:16px;padding:16px;margin-bottom:24px}
     .caption{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.4}
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>FINTRAC Report Types (2018–19)</h1>
+
+    <!-- Bar chart -->
     <div class="box">
-      <div id="chart" style="height:480px;"></div>
+      <div id="bar" style="height:480px;"></div>
       <div class="caption">
-        Data source: Cullen Commission Interim Report (2019). Totals filed by Canadian reporting entities, 2018–19 fiscal year.
+        Breakdown of reports filed by Canadian reporting entities, 2018–19 fiscal year (Cullen Commission Interim Report).
+      </div>
+    </div>
+
+    <!-- Pie chart -->
+    <div class="box">
+      <div id="pie" style="height:480px;"></div>
+      <div class="caption">
+        Proportion of report types filed to FINTRAC in 2018–19.
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
   <script>
-    const chart = echarts.init(document.getElementById('chart'));
-
     const data = [
       { name: 'Electronic Funds Transfers (EFTR)', value: 17627947 },
       { name: 'Large Cash Transactions (LCTR)', value: 10055099 },
@@ -40,7 +48,9 @@
       return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
-    const option = {
+    // --- Bar chart ---
+    const barChart = echarts.init(document.getElementById('bar'));
+    const barOption = {
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'item',
@@ -72,9 +82,34 @@
         emphasis: { focus: 'series' }
       }]
     };
+    barChart.setOption(barOption);
 
-    chart.setOption(option);
-    window.addEventListener('resize', () => chart.resize());
+    // --- Pie chart ---
+    const pieChart = echarts.init(document.getElementById('pie'));
+    const pieOption = {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        formatter: p => `${p.name}<br><b>${fmt(p.value)}</b> reports<br>(${p.percent}%)`
+      },
+      legend: {
+        top: 'bottom',
+        textStyle: { color: '#e5e7eb' }
+      },
+      series: [{
+        type: 'pie',
+        radius: ['30%', '70%'],
+        data: data,
+        label: { color: '#e5e7eb' }
+      }]
+    };
+    pieChart.setOption(pieOption);
+
+    // Resize charts on window resize
+    window.addEventListener('resize', () => {
+      barChart.resize();
+      pieChart.resize();
+    });
   </script>
 </body>
 </html>
