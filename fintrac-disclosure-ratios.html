@@ -29,13 +29,13 @@
     <p class="sub">Shows how many reports become police intelligence, and BC’s share of those disclosures.</p>
 
     <div class="grid">
-      <!-- Donut 1: % of reports that became disclosures -->
+      <!-- Donut 1 -->
       <div class="card">
         <div id="donut1" style="height:360px;"></div>
         <div><span class="big">0.0067%</span> <span class="muted">of all reports became disclosures to law enforcement</span></div>
       </div>
 
-      <!-- Donut 2: % of disclosures that went to BC -->
+      <!-- Donut 2 -->
       <div class="card">
         <div id="donut2" style="height:360px;"></div>
         <div><span class="big">17.5%</span> <span class="muted">of disclosures went to BC</span></div>
@@ -72,20 +72,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
-  // Raw numbers
+  // Numbers
   const reports = 28181435;
   const disclosures = 1900;
   const bc = 332;
 
-  // Derived
-  const pctDisclosure = disclosures / reports * 100; // ≈ 0.006742%
-  const pctBCofDisc = bc / disclosures * 100;       // ≈ 17.47%
-  const pctBCofReports = bc / reports * 100;        // ≈ 0.001178%
-
-  // Helper
+  // Formatter
   const fmt = n => n.toLocaleString();
 
-  // Donut 1: % of reports that became disclosures (tiny slice with minAngle so it's visible)
+  // Donut 1: Reports ➜ Disclosures
   const d1 = echarts.init(document.getElementById('donut1'));
   d1.setOption({
     backgroundColor: 'transparent',
@@ -93,18 +88,17 @@
     series: [{
       type: 'pie',
       radius: ['60%','80%'],
-      avoidLabelOverlap: true,
-      minAngle: 3, // ensure tiny percent is still visible
+      minAngle: 3,
       label: { show: true, formatter: p => p.name === 'Disclosures' ? 'Disclosures' : '', color: '#e5e7eb' },
       labelLine: { show: false },
       data: [
-        { name: 'Disclosures', value: disclosures },
-        { name: 'Not disclosed', value: reports - disclosures }
+        { name: 'Disclosures', value: disclosures, itemStyle: { color: '#f97316' } }, // orange
+        { name: 'Not disclosed', value: reports - disclosures, itemStyle: { color: '#374151' } } // grey
       ]
     }]
   });
 
-  // Donut 2: % of disclosures that went to BC
+  // Donut 2: Disclosures ➜ BC
   const d2 = echarts.init(document.getElementById('donut2'));
   d2.setOption({
     backgroundColor: 'transparent',
@@ -116,14 +110,32 @@
       minAngle: 3,
       label: { color: '#e5e7eb' },
       data: [
-        { name: 'BC', value: bc },
-        { name: 'Other provinces/territories', value: disclosures - bc }
+        { name: 'BC', value: bc, itemStyle: { color: '#0ea5e9' } }, // teal
+        { name: 'Other provinces/territories', value: disclosures - bc, itemStyle: { color: '#374151' } } // grey
       ]
     }]
   });
 
-  // Resize on window change
   window.addEventListener('resize', () => { d1.resize(); d2.resize(); });
 </script>
 </body>
 </html>
+Now each donut has one bright slice (orange for “disclosures,” teal for “BC”) and one grey remainder. Much easier to tell apart ✅
+
+Do you want me to also show you how to add a homepage card so visitors can click to open this page from your main portfolio?
+
+
+
+
+
+
+
+
+Ask ChatGPT
+
+
+
+
+
+
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
