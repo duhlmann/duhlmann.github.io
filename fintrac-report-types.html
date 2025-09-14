@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FINTRAC Report Types (2018–19)</title>
+  <style>
+    :root{ --bg:#0b0f19; --card:#121827; --text:#e5e7eb; --muted:#9aa4b2; }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,sans-serif}
+    .wrap{max-width:960px;margin:28px auto;padding:0 16px}
+    h1{font-size:clamp(22px,4vw,30px);margin:0 0 8px}
+    .box{background:var(--card);border-radius:16px;padding:16px}
+    .caption{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.4}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>FINTRAC Report Types (2018–19)</h1>
+    <div class="box">
+      <div id="chart" style="height:480px;"></div>
+      <div class="caption">
+        Data source: Cullen Commission Interim Report (2019). Totals filed by Canadian reporting entities, 2018–19 fiscal year.
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script>
+    const chart = echarts.init(document.getElementById('chart'));
+
+    const data = [
+      { name: 'Electronic Funds Transfers (EFTR)', value: 17627947 },
+      { name: 'Large Cash Transactions (LCTR)', value: 10055099 },
+      { name: 'Suspicious Transactions (STR)', value: 235661 },
+      { name: 'Casino Disbursements', value: 201145 },
+      { name: 'Cross-Border Currency/Seizure', value: 61583 }
+    ];
+
+    function fmt(n){
+      return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    const option = {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        formatter: p => `${p.name}<br><b>${fmt(p.value)}</b> reports`
+      },
+      xAxis: {
+        type: 'category',
+        data: data.map(d => d.name),
+        axisLabel: { color: '#e5e7eb', rotate: 20 }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          color: '#e5e7eb',
+          formatter: v => v >= 1e6 ? (v/1e6)+'M' : v >= 1e3 ? (v/1e3)+'K' : v
+        },
+        splitLine: { lineStyle: { color: '#1f2937' } }
+      },
+      series: [{
+        type: 'bar',
+        data: data.map(d => d.value),
+        barWidth: '55%',
+        label: {
+          show: true,
+          position: 'top',
+          formatter: p => fmt(p.value),
+          color: '#e5e7eb'
+        },
+        emphasis: { focus: 'series' }
+      }]
+    };
+
+    chart.setOption(option);
+    window.addEventListener('resize', () => chart.resize());
+  </script>
+</body>
+</html>
