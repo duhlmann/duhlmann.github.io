@@ -1,5 +1,7 @@
 # duhlmann.github.io
 # Pneumonia CNN — TL;DR
+This is a small, self-contained project where I train a CNN (Keras/TensorFlow) to classify chest X-rays as **Pneumonia** vs **Normal**. You can run the whole thing in Colab, and the notebook shows setup, training, results, and quick visuals (accuracy and example predictions).
+
 
 **What it is:**  
 A convolutional neural network that classifies chest X-rays as Pneumonia vs Normal.
