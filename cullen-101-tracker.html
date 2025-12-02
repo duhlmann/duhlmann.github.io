@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cullen Commission — 101 Recommendations Tracker</title>
+
+  <style>
+    :root{
+      --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb;
+      --accent:#6ee7b7; --warn:#facc15; --todo:#ef4444; --unknown:#6b7280;
+      --tooltip:#111827; --tooltip-text:#e5e7eb; --tooltip-shadow:0 8px 24px rgba(0,0,0,.35);
+      --link:#66b3ff; /* bright, readable */
+    }
+
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    h1{margin:0 0 8px}
+    p{color:var(--muted);margin:0 0 16px}
+    .card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+    .legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .legend-item{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px}
+    .swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+    #grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:12px}
+    .cell{
+      width:30px;height:30px;border-radius:6px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-weight:bold;color:#000;user-select:none;outline:none
+    }
+    .cell:focus{box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+    .done{background:var(--accent)}
+    .progress{background:var(--warn)}
+    .todo{background:var(--todo);color:#fff}
+    .unknown{background:var(--unknown);color:#fff}
+    .note{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.4}
+
+    /* Tooltip (single, global) */
+    .tooltip{
+      position:fixed; z-index:9999; max-width:min(520px,92vw);
+      background:var(--tooltip); color:var(--tooltip-text);
+      padding:10px 12px; border-radius:10px; box-shadow:var(--tooltip-shadow);
+      font-size:12px; line-height:1.35; display:none;
+      pointer-events:auto; /* allow clicking inside */
+    }
+    .tooltip strong{font-weight:600}
+    .tooltip .status{opacity:.9;font-style:italic;display:block;margin-top:6px}
+
+    /* Sources block */
+    .tooltip .sources{margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px}
+    .tooltip .sources-title{font-size:11px;opacity:.8;margin-bottom:4px;display:block}
+    .tooltip .sources ul{margin:0;padding-left:16px}
+
+    /* Notes block */
+    .tooltip .notes{margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px}
+    .tooltip .notes-title{font-size:11px;opacity:.8;margin-bottom:4px;display:block}
+    .tooltip .notes ul{margin:0;padding-left:16px}
+
+    .tooltip a,
+    .tooltip a:visited{color:var(--link);text-decoration:underline;word-break:break-word}
+    .tooltip a:hover,
+    .tooltip a:focus{text-decoration-thickness:2px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Cullen Commission — 101 Recommendations Tracker</h1>
+    <p>Hover or focus a box to see the full recommendation text, status, and sources. Gray = not yet verified from public sources.</p>
+
+    <div class="card">
+      <div class="legend" aria-hidden="true">
+        <div class="legend-item"><span class="swatch" style="background:var(--accent)"></span> Done (verified)</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--warn)"></span> In&nbsp;Progress (verified)</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--unknown)"></span> Unknown / Unverified</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--todo)"></span> Not&nbsp;Done (verified gap)</div>
+      </div>
+
+      <div id="grid" role="grid" aria-label="Cullen recommendations grid"></div>
+      <div class="note">We only color items where we’ve found solid sources. Everything else stays gray until verified.</div>
+    </div>
+  </div>
+
+  <!-- Single global tooltip -->
+  <div id="tooltip" class="tooltip" role="dialog" aria-hidden="true"></div>
+
+  <script>
+    /* ---------- Minimal data helpers ---------- */
+
+    // Titles only for a few known recs; others auto-fill "Recommendation n"
+    const recTitle = {
+      1: "Rec 1: Establish an independent Anti-Money Laundering (AML) Commissioner.",
+      2: "Rec 2: Maintain the Deputy Ministers’ Committee on AML and the AML Secretariat.",
+      3: "Rec 3: Require AML liaison officers across agencies.",
+      4: "Rec 4: Lower casino source-of-funds threshold to $3,000.",
+      5: "Rec 5: Implement 100% account-based known play at casinos.",
+      6: "Rec 6: Maintain current limits on casino convenience cheque payouts.",
+      7: "Rec 7: Ensure the Independent Gaming Control Office can issue directives to BCLC without needing minister or external approval.",
+      8: "Rec 8: Amend Real Estate Services Regulation to include developer employees in the licensing scheme.",
+      9: "Rec 9: Bring for lease by owner and for sale by owner business-scale operations into real estate licensing.",
+      10:"Rec 10: Finance Ministry should work with BCFSA on its data needs and provide measures that respect privacy.",
+      11:"Rec 11: BCFSA should query FINTRAC about instituting a source-of-funds inquiry for licensees; if not, BCFSA should require real estate licensees to ask and record source-of-funds from clients.",
+      12:"Rec 12: BCFSA should mandate brokerages to have AML compliance programs as a licensing condition.",
+      13:"Rec 13: Province should give BCFSA sufficient resources to quickly handle alleges of serious misconduct.",
+      14:"Rec 14: Amend definition of “mortgage broker” in Mortgage Brokers Act to harmonize with registration requirements.",
+      15:"Rec 15: Require mortgage broker applicants to submit extended criminal/police background checks (including financial misconduct, outstanding charges, etc.).",
+      16:"Rec 16: Require mortgage brokerages to submit annual information returns to help track industry trends & risks.",
+      17:"Rec 17: Give BCFSA rule-making authority over mortgage brokers.",
+      18:"Rec 18: Amend the Act to create a managing broker role with clearly defined responsibilities.",
+      19:"Rec 19: Require education for managing brokers and sub-brokers focused on detecting and reporting fraud and money laundering.",
+      20:"Rec 20: Increase financial penalties in Mortgage Brokers Act up to $250,000.",
+      21:"Rec 21: Give Registrar of Mortgage Brokers power to order profit disgorgement for misconduct, including from unregistered actors.",
+      22:"Rec 22: Obligate real estate licensees to report suspected unregistered mortgage brokering to BCFSA.",
+      23:"Rec 23: Remove automatic stay pending appeal in section 9(2) of the Mortgage Brokers Act.",
+      24:"Rec 24: BCFSA should develop information-sharing partnerships with the new provincial money laundering intelligence and investigation unit.",
+      25:"Rec 25: Province should ask federal government to make mortgage brokers reporting entities under PCMLTFA.",
+      26:"Rec 26: Require private mortgage lenders to make source-of-funds inquiries of investor capital if federal reforms don’t cover this.",
+      27:"Rec 27: Require private mortgage lenders to make source-of-funds inquiries of investor capital if federal reforms don’t cover this.",
+      28:"Rec 28: Amend “interest in land” in Land Owner Transparency Act to include mortgages so beneficial owners of charges can’t be obscured.",
+      29:"Rec 29: Enact legislation for oversight/regulation of private mortgage lenders (separate from registrant brokers).",
+      30:"Rec 30: Give the regulator of private mortgage lenders access to land title data to identify unregistered entities that should be registered.",
+      31:"Rec 31: Require mandatory source-of-funds declarations in debt recovery/foreclosure court actions (with exceptions).",
+      32:"Rec 32: In debt/foreclosure petitions, courts may refuse to grant relief if source-of-funds declarations aren’t truthful or funds are suspected to be from criminal activity.",
+      33:"Rec 33: Remove the fee for law enforcement and AML regulators to access the Land Owner Transparency Registry.",
+      34:"Rec 34: Within three years of roster population, the AML Commissioner should report to Province on improvements, informed by registry effectiveness and stakeholder consultation.",
+      35:"Rec 35: Finance Ministry (alone or with CMHC) should develop data and conduct market integrity analysis to identify suspicious real estate transactions.",   
+      36:"Rec 36: Give Land Title and Survey Authority (LTSA) an explicit, enduring AML mandate including easier data sharing with complementary AML bodies. ",
+      37:"Rec 37: Give the Financial Real Estate and Data Analytics Unit an explicit AML mandate to prioritize data analysis and policy development.",
+      38:"Rec 38: Develop an action plan to address data gaps and quality issues (informed by federal-provincial working group reports), focusing on areas under provincial jurisdiction. ",
+      39:"Rec 39: Adopt a “hybrid” model of data management; AML Commissioner should analyze data for AML purposes.",
+      40:"Rec 40: LTSA should make historical mortgage and property ownership info available via online search.",
+      41:"Rec 41: Amend LTSA legislation to collect information on real estate agents and mortgage brokers in property transactions, at minimum making that data available to relevant AML bodies.",
+      42:"Rec 42: Use unique identifiers for LTSA records.",
+      43:"Rec 43: Remove fee to access LTSA records for law enforcement and AML regulators.",
+      44:"Rec 44: As reforms go in place, analyze their impact on housing prices.",
+      45:"Rec 45: BCFSA should develop AML guidance for credit unions.",
+      46:"Rec 46: Give BCFSA a clear, enduring AML mandate.",
+      47:"Rec 47: Provide sufficient resources to BCFSA to create/staff an AML group serving as contact with law enforcement, private sector, etc.",
+      48:"Rec 48: Attorney General of BC should urge federal minister to introduce PIPEDA safe-harbour for financial institutions to share potential money laundering info. ",
+      49:"Rec 49: Province should develop safe-harbour provisions for provincially regulated financial institutions (in consultation with Info & Privacy Commissioner) to share possible ML information. ",
+      50:"Rec 50: Province should collaborate with stakeholders for a “keep open” regime for accounts suspected of being used in money laundering.",
+      51:"Rec 51: Expand BCFSA mandate to regulate MSBs—defining them broadly, identifying unregistered MSBs, running compliance exams, sanctions, info-sharing with FINTRAC, admin penalties, etc.",
+      52:"Rec 52: Work with federal, provincial, territorial partners to ensure a publicly accessible pan-Canadian corporate beneficial ownership registry is in place by end of 2023.",
+      53:"Rec 53: Law Societies (BC and Federation) should develop uniform metrics for: frequency/nature of rule breaches, referrals, outcomes, info-sharing, data analytics.",
+      54:"Rec 54: Law Societies should develop systems for better tactical information sharing and cross-jurisdictional coordination.",
+      55:"Rec 55: Amend Rule 3-59 of Law Society Rules to require cash under professional fees exception must match reasonable fees.",
+      56:"Rec 56: Amend client identification rules to clarify source-of-money requirements in certain contexts.",
+      57:"Rec 57: Expand client ID and verification rules to cover corporate/trust formation, title transfers, litigation with private loans, etc.",
+      58:"Rec 58: Clarify “directly related to legal services” in Rule 3-58.1 of Law Society Rules to limit improper use of trust accounts.",
+      59:"Rec 59: Law Society should work to raise public awareness of trust account limitations, info-sharing agreements, and referral pathways to law enforcement.",
+      60:"Rec 60: Law Society should promptly remove Commentary 3.1 from Code of Professional Conduct.",
+      61:"Rec 61: Require AML training for trust auditors/investigators charged with trust accounting enforcement.",
+      62:"Rec 62: Require mandatory AML training for high-risk lawyers (e.g., dealing with real estate, entities, litigation, private lending, title transfers).",
+      63:"Rec 63: Solicitor General should instruct law enforcement to refer matters involving lawyers to Law Society; Society to advocate for clear rules/referrals. ",
+      64:"Rec 64: Law Society should clarify process for delivering evidence to law enforcement when they have it.",
+      65:"Rec 65: Province + Law Society should increase public awareness about lawyer oversight, referrals, info channels, enforcement pathways.",
+      66:"Rec 66: Raise maximum misconduct fine for Notaries Public under Notaries Act. ",
+      67:"Rec 67: Require notaries to record source-of-funds when handling financial transactions.",
+      68:"Rec 68: Provide education to notaries on money laundering risks with private lending.",
+      69:"Rec 69: CPABC should amend Code to require members to report findings from FINTRAC about member non-compliance with PCMLTFA.",
+      70:"Rec 70: Study unregulated accountants: their work, clientele, services, AML risk, and if oversight is needed.",
+      71:"Rec 71: Province should ask federal gov’t to amend PCMLTFA so accountants get reporting and other duties when preparing/advising on triggering activities.",
+      72:"Rec 72: CPABC should implement client ID/verification and source-of-funds rules for accountants in specified activities (real estate, entities, bookkeeping).",
+      73:"Rec 73: CPABC should assess how many members operate trust accounts, for what purposes, and under what circumstances.",
+      74:"Rec 74: Undisclosed accountants/firms operating trust accounts should be audited, and a sample who report not operating trust accounts should be independently audited.",
+      75:"Rec 75: CPABC should investigate member acceptance of cash and amounts.",
+      76:"Rec 76: Implement cash transaction limit rules for members in a single client matter",
+      77:"Rec 77: CPABC should track member activity as specified in PCMLTFA Regulations (e.g., section 47 activities).",
+      78:"Rec 78: CPABC should adjust its practice review program to include AML compliance and audits.",
+      79:"Rec 79: CPABC should add mandatory continuing education on AML for members in high-risk activities.",
+      80:"Rec 80: CPABC should liaise continuously with FINTRAC to monitor member reporting & compliance.",
+      81:"Rec 81: CPABC should enable sharing information with law enforcement when appropriate.",
+      82:"Rec 82: Implement universal record-keeping & reporting for all cash transactions of $10,000+: verify ID, record source of funds/third-party details, report to Province, except in narrow exceptions (PIs, attorneys, institutional transactions).",
+      83:"Rec 83: Allow minister + AML Commissioner to impose timely measures in the luxury goods sector to address evolving risks.",
+      84:"Rec 84: Regulate purchase/sale of vehicles exported from BC: registration for exporters above threshold, reporting prior to export.",
+      85:"Rec 85: Amend PST Act so vehicle tax rebate data can be available to Vehicle Sales Authority and AML Commissioner.",
+      86:"Rec 86: Train law enforcement/regulators/Crown counsel to recognize virtual asset ML indicators/typologies.",
+      87:"Rec 87: Implement a regulatory regime for virtual asset service providers, after consultations with appropriate bodies.",
+      88:"Rec 88: The intelligence/investigation unit should use software (e.g., by Prof. John Zdanowicz or similar) to detect trade-based money laundering.",
+      89:"Rec 89: Provincial/municipal law enforcement must consider ML and proceeds-of-crime issues at the start of profit-oriented crime investigations and pursue that path where feasible.",
+      90:"Rec 90: Require training modules for law enforcement on pursuing money laundering/proceeds of crime investigations, including asset seizure/forfeiture skills.",
+      91:"Rec 91: Create a dedicated provincial money laundering intelligence and investigation unit to lead detection, investigation, disruption, and support other investigators.",
+      92:"Rec 92: AML Commissioner + Policing & Security Branch should monitor RCMP resource allocation, number of ML investigations, and outcomes.",
+      93:"Rec 93: Policing & Security Branch should track FINTRAC disclosures in response to voluntary information records, ensuring timely receipt.",
+      94:"Rec 94: Province should ensure Combined Forces Special Enforcement Unit has enough surveillance capacity to support the new intelligence unit.",
+      95:"Rec 95: AML Commissioner should conduct a comprehensive review of the intel unit every 5 years.",
+      96:"Rec 96: Law enforcement should routinely consider asset forfeiture in profit-oriented crime investigations and develop evidentiary foundations accordingly.",
+      97:"Rec 97: Investigators should include target and associates’ assets in reports to Crown Counsel, with forfeiture recommendations.",
+      98:"Rec 98: Investigators and prosecutors dealing with profit-oriented crime should get training on criminal forfeiture provisions.",
+      99:"Rec 99: Civil Forfeiture Office should expand staff (investigators, analysts) to identify unlawful assets beyond police files.",
+      100:"Rec 100: Transition Civil Forfeiture Office from self-funded to government-funded, with revenue flowing to government.",
+      101:"Rec 101: Proceed with the plan to develop an unexplained wealth order regime in BC."
+       // (others will fall back to generic)
+    };
+    function getRecText(n){ return recTitle[n] || `Recommendation ${n}`; }
+
+    // Status classes for selected recs
+    const statusByRec = {
+      1:"unknown",2:"unknown",3:"unknown",4:"todo",
+      25:"done",33:"done",52:"progress",69:"done",71:"done",72:"done",78:"done",
+      85:"done",89:"done",91:"done",96:"done",100:"done",101:"done"
+    };
+    function statusLabel(cls){
+      return cls==='done'?'Done (verified)'
+           :cls==='progress'?'In Progress (verified)'
+           :cls==='todo'?'Not Done (verified gap)'
+           :'Unknown / Unverified';
+    }
+
+    // Source links for a few recs (sparse object is fine)
+    const sourcesByRec = {
+      1: [
+        "Premier says no AML 'czar'; government not creating an independent AML Commissioner",
+        "https://www.vancouverisawesome.com/highlights/bc-premier-ditches-chief-anti-money-laundering-recommendation-8359675"
+      ],
+      2: [
+        "BC Gov — Anti-Money Laundering Secretariat (provincial lead unit)",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/secretariat",
+        "Quick glance: Government actions against money laundering",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions"
+      ],
+      4: [
+        "BC Gov — Gambling: Proof of source-of-funds threshold remains at $10,000 (not lowered to $3,000 as Cullen recommended)",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/gambling"
+      ],
+      25: [
+        "BC Gov – Real Estate: mortgage brokers/lenders under PCMLTFA (Oct 2024)",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/real-estate"
+      ],
+      33: [
+        "BC Gov – Real Estate: LOTR fees removed for AML/law enforcement access",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/real-estate"
+      ],
+      52: [
+        "BC Gov – Corporate Transparency: support for pan-Canadian beneficial ownership registry",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/corporate-ownership-transparency"
+      ],
+      69: [
+        "CPABC Code: members must report FINTRAC non-compliance",
+        "https://www.bccpa.ca/news-events/latest-news/2021/06/23/cpabc-releases-new-anti-money-laundering-guidance"
+      ],
+      71: [
+        "PCMLTFA – accountants as reporting entities",
+        "https://www.fintrac-canafe.gc.ca/guidance-directives/overview-apercu/pcmltfa-lrpcfat/pcmltfa-lrpcfat-eng"
+      ],
+      72: [
+        "CPABC Rule 219 – Client ID/verification & source-of-funds",
+        "https://www.bccpa.ca/members/practice-regulations/client-identification-verification"
+      ],
+      78: [
+        "CPABC Practice Review – AML compliance integrated",
+        "https://www.bccpa.ca/members/practice-regulations/practice-review"
+      ],
+      85: [
+        "BC Gov – Financial Sector: export-vehicle refund loophole closed",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/financial-sector"
+      ],
+      89: [
+        "BC Gov – Public Safety: Police consider ML at outset of profit-driven crime",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/public-safety"
+      ],
+      91: [
+        "BC Gov – Public Safety: Superintendence & Evaluation Unit created",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/public-safety"
+      ],
+      96: [
+        "BC Gov – Public Safety: Consider civil asset forfeiture in profit-motivated crimes",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/public-safety"
+      ],
+      100: [
+        "BC Gov – Public Safety: Civil Forfeiture Office to gov’t budget model",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/public-safety"
+      ],
+      101: [
+        "BC Gov – Civil Forfeiture: Unexplained Wealth Orders enacted and in use",
+        "https://www2.gov.bc.ca/gov/content/justice/anti-money-laundering/quick-glance-government-actions/public-safety"
+      ]
+    };
+
+    /* --- NEW: optional notes you want to show under Sources --- */
+    const notesByRec = {
+      1: [
+        "Status unclear: unit created, but not an independent AML Commissioner.",
+        "Keep checking BC site for any new announcements."
+      ],
+      2: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      3: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      4: [
+        "Cullen asked for $3,000 source-of-funds; BC kept $10,000. Watch for changes."
+      ],
+     5: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      6: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      7: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      8: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      9: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      10: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      11: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      12: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      13: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      14: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      15: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      16: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      17: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      18: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      19: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      20: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      21: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      22: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      23: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      24: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      25: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      26: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      27: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      28: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      29: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      30: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      31: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      32: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      33: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      34: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      35: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      36: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      37: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      38: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      39: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      40: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      41: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      42: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      43: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      44: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      45: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      46: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      47: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      48: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      49: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      50: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      51: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      52: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      53: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      54: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      55: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      56:[
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      57: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      58: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      59: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      60: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      61: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      62: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      63: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      64: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      65: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      66: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      67: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      68: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      69: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      70: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      71: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      72: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      73: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      74: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      75: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      76: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      77: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      78: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      79: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      80: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      81: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      82: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      83: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      84: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      85: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      86: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      87: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      88: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      89: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      90: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      91: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      92: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      93: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      94: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      95: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      96: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      97: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      98: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      99: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      100: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ],
+      101: [
+        "Placeholder.",
+        "Keep checking BC site for any new announcements."
+      ]
+      // Add more like: 7: ["your note"], 8: ["another note"]
+    };
+
+    /* ---------- Tooltip + rendering ---------- */
+    const grid = document.getElementById('grid');
+    const tooltip = document.getElementById('tooltip');
+
+    let hideTimer = null;
+    function clearHideTimer(){ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }
+
+    function scheduleHideIfOutside(to){
+      // If moving into tooltip, don't hide
+      if (to && (to===tooltip || tooltip.contains(to))) return;
+      clearHideTimer();
+      hideTimer = setTimeout(()=>{
+        if (tooltip.matches(':hover')) return; // still over tooltip
+        hideTooltip();
+      }, 180); // small grace period
+    }
+
+    function autoLink(text){
+      const urlRegex=/(https?:\/\/[^\s)]+)|((?:www\.)[^\s)]+)/gi;
+      return text.replace(urlRegex,(m)=>{
+        const url = m.startsWith('http') ? m : `https://${m}`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${m}</a>`;
+      });
+    }
+
+    function escapeHTML(s){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function showTooltip(target, html){
+      clearHideTimer();
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      tooltip.setAttribute('aria-hidden','false');
+
+      const rect = target.getBoundingClientRect();
+      const pad = 8;
+      const ttRect = tooltip.getBoundingClientRect();
+
+      let top = rect.top - ttRect.height - pad;
+      if (top < 8) top = rect.bottom + pad;
+
+      let left = rect.left + (rect.width - ttRect.width) / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - ttRect.width - 8));
+
+      tooltip.style.top = `${top}px`;
+      tooltip.style.left = `${left}px`;
+
+      target.setAttribute('aria-describedby','tooltip');
+    }
+
+    function hideTooltip(){
+      clearHideTimer();
+      tooltip.style.display = 'none';
+      tooltip.setAttribute('aria-hidden','true');
+      tooltip.innerHTML = '';
+      const active = document.querySelector('[aria-describedby="tooltip"]');
+      if (active) active.removeAttribute('aria-describedby');
+    }
+
+    // Build grid (1..101)
+    for(let n=1;n<=101;n++){
+      const status = statusByRec[n] || "unknown";
+      const cell = document.createElement('div');
+      cell.className = `cell ${status}`;
+      cell.textContent = n;
+      cell.setAttribute('role','gridcell');
+      cell.setAttribute('tabindex','0');
+
+      const recText = getRecText(n);
+      const label   = statusLabel(status);
+      const src     = sourcesByRec[n];
+      const notes   = notesByRec[n];
+
+      let html = `<strong>${recText}</strong><span class="status">${label}</span>`;
+
+      /* Sources block */
+      if (src && src.length > 0) {
+        html += `<div class="sources"><span class="sources-title">Sources:</span><ul>`;
+        for (const s of src) html += `<li>${autoLink(s)}</li>`;
+        html += `</ul></div>`;
+      } else {
+        html += `<div class="sources"><span class="sources-title">Sources:</span><ul><li><em>not yet verified</em></li></ul></div>`;
+      }
+
+      /* NEW: Notes block (only if notes exist) */
+      if (notes && (Array.isArray(notes) ? notes.length : true)) {
+        const arr = Array.isArray(notes) ? notes : [notes];
+        html += `<div class="notes"><span class="notes-title">Notes:</span><ul>`;
+        for (const ntext of arr) html += `<li>${escapeHTML(ntext)}</li>`;
+        html += `</ul></div>`;
+      }
+
+      // Show on hover/focus
+      cell.addEventListener('mouseenter', ()=>showTooltip(cell, html));
+      cell.addEventListener('focus',     ()=>showTooltip(cell, html));
+
+      // Start hide timer when leaving the cell (gives time to move into tooltip)
+      cell.addEventListener('mouseleave', (e)=>scheduleHideIfOutside(e.relatedTarget));
+      // On blur, also schedule hide (mouse-over tooltip cancels it)
+      cell.addEventListener('blur', ()=>scheduleHideIfOutside(document.activeElement));
+
+      grid.appendChild(cell);
+    }
+
+    // Keep tooltip open while inside it; cancel pending hide
+    tooltip.addEventListener('mouseenter', clearHideTimer);
+    // Hide if leaving tooltip to anywhere not back to a cell
+    tooltip.addEventListener('mouseleave', (e)=>{
+      const to = e.relatedTarget;
+      if (to && grid.contains(to)) return; // went back to a cell
+      scheduleHideIfOutside(to);
+    });
+
+    // Hide on scroll/resize/escape
+    window.addEventListener('scroll', hideTooltip, { passive:true });
+    window.addEventListener('resize', hideTooltip);
+    window.addEventListener('keydown', e => { if (e.key === "Escape") hideTooltip(); });
+  </script>
+</body>
+</html>
+
+
+    
+ 
+   
+     
+
+    
+
+    
+      
+
+      
+
+     
+    
+    
