@@ -7,32 +7,42 @@
   <meta name="description" content="Projects in Data Science, Machine Learning, and Visualization." />
   <style>
     :root{
-      --bg:#0b0f19; --card:#121827; --muted:#9aa4b2; --text:#e5e7eb; --accent:#6ee7b7; --accent2:#93c5fd;
+      /* Light theme palette — tweak these to customize */
+      --bg:#f8fafc;       /* page background */
+      --card:#ffffff;     /* card background */
+      --muted:#6b7280;    /* muted / secondary text */
+      --text:#0b1224;     /* primary text (dark) */
+      --accent:#06b6d4;   /* accent gradient start (teal) */
+      --accent2:#60a5fa;  /* accent gradient end (blue) */
+      --border:#e6edf3;   /* subtle borders */
+      --card-shadow: 0 6px 18px rgba(11,18,36,0.06);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b0f19 0%, #0b1324 100%);color:var(--text)}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, #eef2f7 100%);
+      color:var(--text)}
     a{color:inherit;text-decoration:none}
     .container{max-width:1100px;margin:0 auto;padding:24px}
     header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}
-    header .name{font-weight:700;font-size:1.125rem}
-    .pill{display:inline-block;border:1px solid #243045;border-radius:999px;padding:6px 10px;font-size:.85rem;color:var(--muted)}
+    header .name{font-weight:700;font-size:1.125rem;color:var(--text)}
+    .pill{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:.85rem;color:var(--muted);background:transparent}
     .hero{padding:48px 0;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
-    .hero h1{font-size:2.2rem;line-height:1.15;margin:0 0 10px}
+    .hero h1{font-size:2.2rem;line-height:1.15;margin:0 0 10px;color:var(--text)}
     .hero p{color:var(--muted);margin:.25rem 0 1rem}
     .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-    .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b0f19;font-weight:700;border:none;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(147,197,253,.15);}
-    .btn.secondary{background:#1c2537;color:var(--text);border:1px solid #243045}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:var(--text);font-weight:700;border:none;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(96,165,250,.12);}
+    .btn.secondary{background:#f3f4f6;color:var(--text);border:1px solid var(--border)}
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
     @media (max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
     @media (max-width:640px){.grid{grid-template-columns:1fr}}
-    .card{background:linear-gradient(180deg,#0f172a 0%, #0b1224 100%);border:1px solid #1f2a40;border-radius:18px;padding:18px;transition:.2s;}
-    .card:hover{transform:translateY(-2px);border-color:#2b3a56}
-    .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid #26334b;border-radius:999px;padding:4px 8px;margin-right:6px}
-    .card h3{margin:10px 0 6px;font-size:1.05rem}
+    .card{background:linear-gradient(180deg,var(--card) 0%, #f8fafc 100%);border:1px solid var(--border);border-radius:18px;padding:18px;transition:.2s;box-shadow:var(--card-shadow)}
+    .card:hover{transform:translateY(-2px);border-color:#cfe7fb}
+    .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 8px;margin-right:6px;background:transparent}
+    .card h3{margin:10px 0 6px;font-size:1.05rem;color:var(--text)}
     .card p{margin:0 0 12px;color:var(--muted);min-height:40px}
     .links{display:flex;gap:10px;flex-wrap:wrap}
     footer{margin:40px 0 10px;color:var(--muted);font-size:.9rem}
-    code.comment{display:block;color:#9aa4b2;background:#0c1220;border:1px dashed #243045;padding:10px;border-radius:12px;margin:14px 0}
+    code.comment{display:block;color:var(--muted);background:#f3f6fb;border:1px dashed var(--border);padding:10px;border-radius:12px;margin:14px 0}
   </style>
 </head>
 <body>
@@ -159,7 +169,7 @@
   </script>
   
  
-  <hr style="margin-top: 3em; border: none; border-top: 1px solid #444; width: 80%;">
+  <hr style="margin-top: 3em; border: none; border-top: 1px solid #d4dade; width: 80%;">
   <!-- Contact Section -->
 <section id="contact" style="padding: 2em; text-align: center;">
   <h2>Contact</h2>
@@ -170,3 +180,4 @@
 
 </body>
 </html>
+      
